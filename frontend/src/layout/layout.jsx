@@ -1,14 +1,14 @@
-import react from 'react';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
 import Footer from '../components/footer/footer';
 import Header from '../components/header/header';
-import Routers from '../routes/routers';
 
 const Layout = () => {
   return (
     <>
       <Header />
-      <main style={{ paddingTop: '60px' }}>
-        <Routers />
+      <main style={{ paddingTop: '80px' }}>
+        <Outlet />
       </main>
       <Footer />
     </>

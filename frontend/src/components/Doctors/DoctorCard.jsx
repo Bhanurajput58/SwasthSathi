@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import starIcon from '../../assets/images/Star.png';
+import { FaArrowRight } from 'react-icons/fa';
+import './DoctorCard.css';
 
 const DoctorCard = ({ doctor }) => {
   const {
@@ -14,61 +16,51 @@ const DoctorCard = ({ doctor }) => {
   } = doctor;
 
   return (
-    <div className="p-3 lg:p-5">
-      <div>
-        <img src={photo} className="w-full" alt="" />
-      </div>
-
-      <h2 className="text-[18px] leading-[30px] lg:text-[26px] lg:leading-9 text-headingColor font-[700] mt-3 lg:mt-5">
-        {name}
-      </h2>
-
-      <div className="mt-2 lg:mt-4 flex items-center justify-between">
-        <span className="bg-[#CCF0F3] text-irisBlueColor py-1 px-2 lg:py-2 lg:px-6 text-[12px] leading-4 lg:text-[16px] lg:leading-7 font-semibold rounded">
-          {specialization}
-        </span>
-
-        <div className="flex items-center gap-[6px]">
-          <span className="flex items-center gap-[6px] text-[14px] leading-6 lg:text-[16px] lg:leading-7 font-semibold text-headingColor">
-            <img src={starIcon} alt="" /> {avgRating}
-          </span>
-          <span className="text-[14px] leading-6 lg:text-[16px] lg:leading-7 font-[400] text-textColor">
-            ({totalRating})
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-[18px] lg:mt-5 flex items-center justify-between">
-        <div>
-          <h3 className="text-[16px] leading-7 lg:text-[18px] lg:leading-[30px] font-semibold text-headingColor">
-            +{totalPatients} patients
-          </h3>
-          <p className="text-[14px] leading-6 font-[400] text-textColor">
-            At {hospital}
-          </p>
+    <div className="transform hover:-translate-y-2 transition-all duration-300">
+      <div className="bg-white rounded-[35px] shadow-xl hover:shadow-2xl overflow-hidden border border-slate-100">
+        <div className="relative">
+          <img
+            src={photo}
+            className="w-full h-[280px] object-cover transition-transform duration-500 hover:scale-110"
+            alt={name}
+          />
+          <div className="absolute top-6 right-6 bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+            <img src={starIcon} alt="rating" className="w-5 h-5" />
+            <span className="font-bold text-[16px] text-[#1e293b]">{avgRating}</span>
+            <span className="text-[#64748b] text-[14px]">({totalRating})</span>
+          </div>
         </div>
 
-        <Link
-          to={`/doctors/${id}`}
-          className="w-[44px] h-[44px] rounded-full border border-solid border-[#181A1E] flex items-center justify-center group hover:bg-primaryColor hover:border-none"
-        >
-          <span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              className="w-6 h-5 group-hover:text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </span>
-        </Link>
+        <div className="p-8">
+          <h2 className="text-[24px] font-bold text-[#1e293b] mb-4 text-center">
+            {name}
+          </h2>
+
+          <div className="flex justify-center mb-6">
+            <span className="bg-[#e0f2fe] text-[#0ea5e9] px-6 py-2 rounded-full text-[14px] font-semibold">
+              {specialization}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-100">
+            <div className="text-center">
+              <p className="text-[14px] text-[#64748b] mb-1">Total Patients</p>
+              <p className="text-[18px] font-bold text-[#1e293b]">+{totalPatients}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-[14px] text-[#64748b] mb-1">Hospital</p>
+              <p className="text-[18px] font-bold text-[#1e293b]">{hospital}</p>
+            </div>
+          </div>
+
+          <Link
+            to={`/doctors/${id}`}
+            className="mt-8 w-full bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8] text-white py-4 px-6 rounded-full flex items-center justify-center gap-2 hover:from-[#38bdf8] hover:to-[#0ea5e9] transition-all duration-300 font-bold text-[16px] shadow-lg shadow-sky-200 group"
+          >
+            View Profile
+            <FaArrowRight className="text-[14px] transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
       </div>
     </div>
   );

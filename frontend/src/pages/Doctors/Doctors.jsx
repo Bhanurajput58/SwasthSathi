@@ -8,7 +8,7 @@ import { FaStar, FaPhoneAlt, FaEnvelope, FaWhatsapp, FaUserMd, FaAward, FaMapMar
 const doctors = [
   {
     id: 1,
-    name: 'Dr. Priya Sharma',
+    name: 'Dr. Akash Ray',
     specialty: 'Cardiologist',
     location: 'Delhi',
     image: doctorImg1,
@@ -33,7 +33,7 @@ const doctors = [
   },
   {
     id: 2,
-    name: 'Dr. Amit Verma',
+    name: 'Dr. Aman Singh',
     specialty: 'Dermatologist',
     location: 'Mumbai',
     image: doctorImg2,
@@ -58,7 +58,7 @@ const doctors = [
   },
   {
     id: 3,
-    name: 'Dr. Neha Singh',
+    name: 'Dr. Amit Verma',
     specialty: 'Pediatrician',
     location: 'Bangalore',
     image: doctorImg3,
@@ -81,7 +81,6 @@ const doctors = [
       { name: 'Suresh R.', rating: 4, comment: 'Explained everything clearly.' },
     ],
   },
-  // Add more doctors as needed
 ];
 
 const specialties = [...new Set(doctors.map(doc => doc.specialty))];
@@ -171,7 +170,6 @@ const Doctors = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            // Enhanced Skeleton cards
             Array.from({ length: 3 }).map((_, idx) => (
               <div key={idx} className="bg-white rounded-2xl shadow-lg p-8 animate-pulse">
                 <div className="flex items-center space-x-4">

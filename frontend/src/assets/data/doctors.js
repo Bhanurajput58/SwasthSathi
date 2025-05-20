@@ -1,35 +1,33 @@
 const doctors = [
     {
         id: 1,
-        name: "Dr. Anjali Sharma",
+        name: "Dr. Akash Ray",
         specialty: "Cardiologist",
-        experience: 12,
+        experience: 15,
         rating: 4.8,
         image: "/assets/images/doctors/anjali-sharma.jpg",
         location: "Delhi, India",
         contact: "+91 9876543210",
         available: true,
         about: "Expert in interventional cardiology and preventive heart care."
-    },
-    {
+    },    {
         id: 2,
-        name: "Dr. Rajeev Kumar",
-        specialty: "Dermatologist",
-        experience: 8,
-        rating: 4.6,
+        name: "Dr. Aman Singh",
+        specialty: "Neurologist",
+        experience: 12,
+        rating: 4.7,
         image: "/assets/images/doctors/rajeev-kumar.jpg",
         location: "Mumbai, India",
         contact: "+91 9123456780",
         available: false,
         about: "Specializes in skin disorders and cosmetic dermatology."
-    },
-    {
+    },    {
         id: 3,
-        name: "Dr. Priya Singh",
-        specialty: "Pediatrician",
+        name: "Dr. Amit Verma",
+        specialty: "Orthopedic Surgeon",
         experience: 10,
         rating: 4.9,
-        image: "/assets/images/doctors/priya-singh.jpg",
+        image: "/assets/images/doctors/amit-verma.jpg",
         location: "Bangalore, India",
         contact: "+91 9988776655",
         available: true,

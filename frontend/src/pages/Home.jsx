@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUserMd, FaHospital, FaAmbulance, FaPhoneAlt, FaWhatsapp, FaSearch, FaMapMarkerAlt, FaStar, FaClock, FaUserFriends } from 'react-icons/fa';
+import { FaUserMd, FaHospital, FaAmbulance, FaPhoneAlt, FaWhatsapp, FaSearch, FaMapMarkerAlt, FaStar, FaClock, FaUserFriends, FaArrowRight } from 'react-icons/fa';
 import { MdHealthAndSafety, MdLocalPharmacy, MdLocationOn, MdEmail } from 'react-icons/md';
 import { BsArrowRight, BsCalendarCheck } from 'react-icons/bs';
 import { HiOutlineUserGroup } from 'react-icons/hi';
@@ -10,21 +10,104 @@ import heroImage3 from '../assets/images/hero-img03.png';
 import icon02 from '../assets/images/icon02.png';
 import icon03 from '../assets/images/icon03.png';
 import dieting from '../assets/images/dieting.png';
+import doctorImg01 from '../assets/images/doctor-img01.png';
+import doctorImg02 from '../assets/images/doctor-img02.png';
+import doctorImg03 from '../assets/images/doctor-img03.png';
+import ServiceCard from '../components/Services/ServiceCard';
 import './Home.css';
+import DoctorCard from '../components/Doctors/DoctorCard';
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [email, setEmail] = useState('');
 
+  const services = [
+    {
+      name: 'Emergency Care',
+      desc: '24/7 emergency medical support and ambulance services with rapid response.',
+      Icon: FaAmbulance,
+      bgColor: '#FCE7F3',
+      textColor: '#EC4899',
+    },
+    {
+      name: 'Pharmacy Services',
+      desc: 'Easy access to medicines and healthcare products with doorstep delivery.',
+      Icon: MdLocalPharmacy,
+      bgColor: '#FEF3C7',
+      textColor: '#F59E0B',
+    },
+    {
+      name: 'Telemedicine',
+      desc: 'Virtual consultations with healthcare professionals from anywhere.',
+      Icon: FaPhoneAlt,
+      bgColor: '#D1FAE5',
+      textColor: '#10B981',
+    },
+    {
+      name: 'Specialist Consultation',
+      desc: 'Expert consultations across various medical specialties.',
+      Icon: FaUserMd,
+      bgColor: '#DBEAFE',
+      textColor: '#3B82F6',
+    },
+    {
+      name: 'Health Checkups',
+      desc: 'Comprehensive health checkup packages tailored to your needs.',
+      Icon: BsCalendarCheck,
+      bgColor: '#EDE9FE',
+      textColor: '#8B5CF6',
+    },
+    {
+      name: 'Hospital Services',
+      desc: 'Access to a network of top-rated hospitals and healthcare facilities.',
+      Icon: FaHospital,
+      bgColor: '#CFFAFE',
+      textColor: '#06B6D4',
+    },
+  ];
+
+  const doctors = [
+    {
+      id: '1',
+      name: 'Dr. Akash Ray',
+      specialization: 'Surgeon',
+      avgRating: 4.8,
+      totalRating: 272,
+      photo: doctorImg01,
+      totalPatients: 1500,
+      hospital: 'Mount Adora Hospital'
+    },
+    {
+      id: '2',
+      name: 'Dr. Aman Singh',
+      specialization: 'Neurologist',
+      avgRating: 4.8,
+      totalRating: 272,
+      photo: doctorImg02,
+      totalPatients: 1500,
+      hospital: 'Patuakhali Medical College'
+    },
+    {
+      id: '3',
+      name: 'Dr. Amit Verma',
+      specialization: 'Dermatologist',
+      avgRating: 4.8,
+      totalRating: 272,
+      photo: doctorImg03,
+      totalPatients: 1500,
+      hospital: 'Cumilla Medical College'
+    }
+  ];
+
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implement search functionality
+    //search functionality
     console.log('Searching for:', searchQuery);
   };
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
-    // Implement newsletter subscription
+    //newsletter subscription
     console.log('Subscribing email:', email);
     setEmail('');
   };
@@ -40,36 +123,33 @@ const Home = () => {
                 Your Journey to Better Health Starts Here
               </h1>
               <p className="hero-description">
-                SwasthSathi bridges modern medical support with natural well-being, making healthcare accessible to everyone across India. Connect with experienced doctors, advanced clinics, and a wide range of healthcare services—anytime, anywhere.
+                SwasthSathi bridges modern medical support with natural well-being, making healthcare accessible to everyone across India.
               </p>
               {/* Search Bar */}
               <form onSubmit={handleSearch} className="search-form">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Search for doctors, specialties..."
-                    
-                    className="search-input"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button
-                    type="submit"
-                    className="search-button"
-                  >
-                    <FaSearch className="text-xl" />
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  placeholder="Search for doctors, specialties..."
+                  className="search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button
+                  type="submit"
+                  className="search-button"
+                >
+                  <FaSearch className="text-xl" />
+                </button>
               </form>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link 
-                  to="/doctors" 
+              <div className="hero-actions">
+                <Link
+                  to="/doctors"
                   className="cta-button-primary"
                 >
                   Find a Doctor
                 </Link>
-                <Link 
-                  to="/services" 
+                <Link
+                  to="/services"
                   className="cta-button-secondary"
                 >
                   Explore Services
@@ -78,14 +158,14 @@ const Home = () => {
             </div>
             <div className="hero-images-split">
               <div className="hero-image-large">
-                <img src={heroImage1} alt="Healthcare professional 1" />
+                <img src={heroImage1} alt="Healthcare professional" />
               </div>
               <div className="hero-image-column">
                 <div className="hero-image-small">
-                  <img src={heroImage2} alt="Healthcare professional 2" />
+                  <img src={heroImage2} alt="Healthcare professional" />
                 </div>
                 <div className="hero-image-small">
-                  <img src={heroImage3} alt="Healthcare professional 3" />
+                  <img src={heroImage3} alt="Healthcare professional" />
                 </div>
               </div>
             </div>
@@ -212,36 +292,37 @@ const Home = () => {
         <div className="container">
           <h2 className="text-3xl font-bold text-center mb-12 text-headingColor">Our Services</h2>
           <div className="services-grid">
-            <div className="service-card">
-              <FaAmbulance className="service-icon" />
-              <h3 className="service-title">Emergency Care</h3>
-              <p className="service-description">
-                24/7 emergency medical support and ambulance services.
-              </p>
-              <Link to="/services" className="service-link">
-                Learn More <BsArrowRight />
-              </Link>
-            </div>
-            <div className="service-card">
-              <MdLocalPharmacy className="service-icon" />
-              <h3 className="service-title">Pharmacy Services</h3>
-              <p className="service-description">
-                Easy access to medicines and healthcare products.
-              </p>
-              <Link to="/services" className="service-link">
-                Learn More <BsArrowRight />
-              </Link>
-            </div>
-            <div className="service-card">
-              <FaPhoneAlt className="service-icon" />
-              <h3 className="service-title">Telemedicine</h3>
-              <p className="service-description">
-                Virtual consultations with healthcare professionals.
-              </p>
-              <Link to="/services" className="service-link">
-                Learn More <BsArrowRight />
-              </Link>
-            </div>
+            {services.map((service, index) => (
+              <ServiceCard key={index} item={service} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+      {/* Our Great Doctors Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-[#f8fafc]">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center mb-12">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-[#1e293b] to-[#0ea5e9] bg-clip-text text-transparent mb-4">
+              Meet Our Expert Doctors
+            </h2>
+            <p className="text-lg text-[#64748b]">
+              World-class care from India's finest healthcare professionals. Our team of expert doctors
+              brings years of experience and dedication to your well-being.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {doctors.map(doctor => (
+              <DoctorCard key={doctor.id} doctor={doctor} />
+            ))}
+          </div>
+          <div className="text-center mt-12">
+            <Link
+              to="/doctors"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8] text-white font-semibold rounded-full shadow-lg shadow-sky-200 transition-all duration-300 hover:from-[#38bdf8] hover:to-[#0ea5e9] group"
+            >
+              View All Doctors
+              <FaArrowRight className="ml-2 text-sm transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
         </div>
       </section>
@@ -327,14 +408,14 @@ const Home = () => {
             Join thousands of people who trust SwasthSathi for their healthcare needs.
           </p>
           <div className="cta-buttons">
-            <Link 
-              to="/signup" 
+            <Link
+              to="/signup"
               className="cta-button-primary"
             >
               Sign Up Now
             </Link>
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="cta-button-secondary"
             >
               Contact Us
@@ -352,7 +433,7 @@ const Home = () => {
       >
         <FaWhatsapp className="text-2xl" />
       </a>
-      
+
     </div>
   );
 };

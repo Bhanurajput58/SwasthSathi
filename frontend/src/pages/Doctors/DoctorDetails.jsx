@@ -12,7 +12,6 @@ const DoctorDetails = () => {
   const [newReview, setNewReview] = useState({ name: '', rating: 5, comment: '' });
   const [localReviews, setLocalReviews] = useState([]);
 
-  // Example static time slots
   const timeSlots = [
     '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
     '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM',
