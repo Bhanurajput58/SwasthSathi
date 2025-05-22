@@ -16,6 +16,9 @@ import doctorImg03 from '../assets/images/doctor-img03.png';
 import ServiceCard from '../components/Services/ServiceCard';
 import './Home.css';
 import DoctorCard from '../components/Doctors/DoctorCard';
+import Testimonial from '../components/Testimonial/Testimonial';
+import FaqList from '../components/Faq/FaqList';
+import faqImg from '../assets/images/faq-img.png';
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -327,48 +330,18 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="testimonials-section">
-        <div className="container">
-          <h2 className="text-3xl font-bold text-center mb-12 text-headingColor">What Our Patients Say</h2>
-          <div className="testimonials-grid">
-            <div className="testimonial-card">
-              <div className="testimonial-header">
-                <div className="testimonial-avatar">
-                  <span>R</span>
-                </div>
-                <div className="testimonial-info">
-                  <h4 className="testimonial-name">Rahul Sharma</h4>
-                  <p className="testimonial-location">Delhi</p>
-                </div>
-              </div>
-              <p className="testimonial-text">"The telemedicine service saved me during the pandemic. Quick and professional service!"</p>
-            </div>
-            <div className="testimonial-card">
-              <div className="testimonial-header">
-                <div className="testimonial-avatar">
-                  <span>P</span>
-                </div>
-                <div className="testimonial-info">
-                  <h4 className="testimonial-name">Priya Patel</h4>
-                  <p className="testimonial-location">Mumbai</p>
-                </div>
-              </div>
-              <p className="testimonial-text">"Found the perfect doctor for my mother's treatment. The platform is very user-friendly."</p>
-            </div>
-            <div className="testimonial-card">
-              <div className="testimonial-header">
-                <div className="testimonial-avatar">
-                  <span>A</span>
-                </div>
-                <div className="testimonial-info">
-                  <h4 className="testimonial-name">Amit Kumar</h4>
-                  <p className="testimonial-location">Bangalore</p>
-                </div>
-              </div>
-              <p className="testimonial-text">"The emergency care service is excellent. They arrived within minutes when needed."</p>
-            </div>
+      {/* Testimonial Section */}
+      <section className="testimonial-section py-20 bg-gradient-to-b from-[#f0f7ff] to-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center mb-12">
+            <h2 className="text-4xl font-bold text-[#2c3e50] mb-4">
+              What Our Patients Say
+            </h2>
+            <p className="text-lg text-gray-600">
+              Real experiences from our valued patients who have trusted SwasthSathi for their healthcare needs.
+            </p>
           </div>
+          <Testimonial />
         </div>
       </section>
 
@@ -421,6 +394,13 @@ const Home = () => {
               Contact Us
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* ======== FAQ Section ======== */}
+      <section className="faq__section">
+        <div className="container">
+          <FaqList />
         </div>
       </section>
 
