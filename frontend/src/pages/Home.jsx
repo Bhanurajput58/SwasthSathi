@@ -237,7 +237,7 @@ const Home = () => {
               <p className="stat-label">Happy Patients</p>
             </div>
             <div className="stat-item">
-              <FaUserMd className="stat-icon" />
+              <FaUserMd className="stat-icon" />newsletter-form
               <h3 className="stat-number">100+</h3>
               <p className="stat-label">Expert Doctors</p>
             </div>

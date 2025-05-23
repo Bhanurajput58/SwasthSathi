@@ -40,6 +40,22 @@ const testimonials = [
     review: "As a healthcare provider, I'm impressed with SwasthSathi's platform. It's user-friendly and helps me manage my patients effectively. Great job!",
     specialty: "Pediatrics",
     date: "1 week ago"
+  },
+  {
+    name: "Aaditya Kumar",
+    location: "Pune",
+    rating: 5,
+    review: "Amazing medical services! The doctors are highly skilled and caring. I highly recommend their services to everyone.",
+    specialty: "General Medicine",
+    date: "1 week ago"
+  },
+  {
+    name: "Ravi Shankar",
+    location: "Hyderabad",
+    rating: 5,
+    review: "The medical staff is very professional and friendly. They make sure you get the best treatment possible.",
+    specialty: "Orthopedics",
+    date: "5 days ago"
   }
 ];
 
@@ -74,9 +90,8 @@ const Testimonial = () => {
           },
         }}
       >        {testimonials.map((testimonial, index) => (
-          <SwiperSlide key={index}>
-            <div className="p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
-              <div className="flex justify-between items-start mb-4">
+          <SwiperSlide key={index}>            <div className="h-[300px] p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col">
+              <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 flex items-center justify-center text-white text-xl font-semibold">
                     {testimonial.name.charAt(0)}
@@ -93,13 +108,13 @@ const Testimonial = () => {
                 <FaQuoteLeft className="text-2xl text-sky-500 opacity-50" />
               </div>
 
-              <div className="flex items-center gap-1 mb-4">
+              <div className="flex items-center gap-1 mt-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <HiStar key={i} className="text-yellow-400 w-5 h-5" />
                 ))}
               </div>
 
-              <p className="text-gray-600 leading-relaxed mb-4">
+              <p className="text-gray-600 leading-relaxed mt-4 flex-grow">
                 "{testimonial.review}"
               </p>
 
@@ -107,56 +122,7 @@ const Testimonial = () => {
                 {testimonial.date}
               </div>
             </div>
-          </SwiperSlide>
-        ))}
-        <SwiperSlide>
-          <div className='py-[30px] px-5 rounded-3'>
-            <div className='flex items-center gap-[13px]'>
-              <img src={patientAvatar} alt='' />
-              <div>
-                <h4 className='text-[18px] leading-[30px] font-semibold text-headingColor'>
-                  Aaditya
-                </h4>
-                <div className='flex items-center gap-[2px]'>
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                </div>
-              </div>
-            </div>
-
-            <p className='text-[16px] leading-7 mt-4 text-textColor font-[400]'>
-              "Amazing medical services! The doctors are highly skilled and caring.
-              I highly recommend their services to everyone."
-            </p>
-          </div>
-        </SwiperSlide>
-        <SwiperSlide>
-          <div className='py-[30px] px-5 rounded-3'>
-            <div className='flex items-center gap-[13px]'>
-              <img src={patientAvatar} alt='' />
-              <div>
-                <h4 className='text-[18px] leading-[30px] font-semibold text-headingColor'>
-                  Ravi
-                </h4>
-                <div className='flex items-center gap-[2px]'>
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                  <HiStar className='text-yellowColor w-[18px] h-5' />
-                </div>
-              </div>
-            </div>
-
-            <p className='text-[16px] leading-7 mt-4 text-textColor font-[400]'>
-              "The medical staff is very professional and friendly. They make sure
-              you get the best treatment possible."
-            </p>
-          </div>
-        </SwiperSlide>
+          </SwiperSlide>        ))}
       </Swiper>
     </div>
   );

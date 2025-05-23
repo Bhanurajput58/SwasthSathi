@@ -13,10 +13,10 @@ const FaqList = () => {
         />
       </div>
       <div>
-        <h2 className="text-[2rem] lg:text-[2.5rem] font-bold text-[#2c3e50] mb-6">
+        <h2 className="text-[2rem] lg:text-[2.5rem] font-bold text-[#2c3e50]">
           Frequently Asked Questions
         </h2>
-        <p className="text-[16px] leading-7 mb-8 text-gray-600">
+        <p className="text-[16px] leading-7  text-gray-600">
           Find quick answers to common questions about our healthcare services, appointment booking, and more.
         </p>
         <div className="mt-[30px]">

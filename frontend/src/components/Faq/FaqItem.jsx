@@ -22,27 +22,21 @@ const FaqItem = ({ item }) => {
         }`}>
           {item.question}
         </h4>
-        <div
-          className={`w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center transition-all duration-300 transform ${
+        <div          className={`w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center transition-all duration-300 transform ${
             isOpen 
-              ? 'bg-[#0052cc] text-white rotate-180' 
+              ? 'bg-white text-black' 
               : 'bg-[#f0f7ff] text-[#0052cc] hover:bg-[#0052cc] hover:text-white'
           }`}
         >
           {isOpen ? <AiOutlineMinus className="text-xl" /> : <AiOutlinePlus className="text-xl" />}
         </div>
-      </div>
-      <div 
-        className={`transition-all duration-500 ease-in-out overflow-hidden ${
-          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="pt-4 px-1">
-          <p className="text-[15px] leading-7 lg:text-[16px] lg:leading-8 text-gray-600">
+      </div>      {isOpen && (
+        <div className="transition-all duration-300 ease-in-out mt-4">
+          <p className="text-[15px] leading-7 lg:text-[16px] lg:leading-8 text-gray-600 px-1">
             {item.answer}
           </p>
         </div>
-      </div>
+      )}
     </div>
   );
 };
