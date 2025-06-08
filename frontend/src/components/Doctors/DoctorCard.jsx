@@ -16,18 +16,18 @@ const DoctorCard = ({ doctor }) => {
   } = doctor;
 
   return (
-    <div className="transform hover:-translate-y-2 transition-all duration-300">
-      <div className="bg-white rounded-[35px] shadow-xl hover:shadow-2xl overflow-hidden border border-slate-100">
+    <div>
+      <div className="bg-white rounded-[35px] shadow-xl overflow-hidden border border-slate-100">
         <div className="relative">
           <img
             src={photo}
-            className="w-full h-[280px] object-cover transition-transform duration-500 hover:scale-110"
+            className="w-full h-[100px] object-cover"
             alt={name}
           />
-          <div className="absolute top-6 right-6 bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-            <img src={starIcon} alt="rating" className="w-5 h-5" />
-            <span className="font-bold text-[16px] text-[#1e293b]">{avgRating}</span>
-            <span className="text-[#64748b] text-[14px]">({totalRating})</span>
+          <div className="absolute top-6 right-6 bg-white px-1 py-1 rounded-full shadow-lg flex items-center gap-1.5">
+            <img src={starIcon} alt="rating" className="w-2 h-2" />
+            <span className="font-bold text-[14px] text-[#1e293b]">{avgRating}</span>
+            <span className="text-[#64748b] text-[12px]">({totalRating})</span>
           </div>
         </div>
 
@@ -55,10 +55,10 @@ const DoctorCard = ({ doctor }) => {
 
           <Link
             to={`/doctors/${id}`}
-            className="mt-8 w-full bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8] text-white py-4 px-6 rounded-full flex items-center justify-center gap-2 hover:from-[#38bdf8] hover:to-[#0ea5e9] transition-all duration-300 font-bold text-[16px] shadow-lg shadow-sky-200 group"
+            className="mt-8 w-full bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8] text-white py-4 px-6 rounded-full flex items-center justify-center gap-2 font-bold text-[16px] shadow-lg shadow-sky-200"
           >
             View Profile
-            <FaArrowRight className="text-[14px] transition-transform group-hover:translate-x-1" />
+            <FaArrowRight className="text-[14px]" />
           </Link>
         </div>
       </div>
