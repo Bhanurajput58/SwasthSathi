@@ -1,0 +1,124 @@
+.admin-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  color: #333;
+}
+
+.users-grid,
+.doctors-grid,
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.user-card,
+.doctor-card,
+.settings-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-card h3,
+.doctor-card h3,
+.settings-card h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.user-info,
+.doctor-info {
+  margin-bottom: 1rem;
+}
+
+.user-info p,
+.doctor-info p {
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+.user-actions,
+.doctor-actions,
+.settings-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.action-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.action-button.cyan {
+  background-color: #00bcd4;
+  color: white;
+}
+
+.action-button.gray {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.action-button:hover {
+  opacity: 0.9;
+}
+
+.setting-item {
+  margin-bottom: 1rem;
+}
+
+.setting-item label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.setting-item input[type="number"],
+.setting-item input[type="time"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.setting-item input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 1rem;
+  }
+
+  .users-grid,
+  .doctors-grid,
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+} 

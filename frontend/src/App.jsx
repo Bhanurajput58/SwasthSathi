@@ -14,6 +14,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PatientDashboard from './pages/Dashboard/PatientDashboard';
 import DoctorDashboard from './pages/Dashboard/DoctorDashboard';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
+import Medications from './pages/Medications';
+import ManageUsers from './pages/Admin/ManageUsers';
+import ManageDoctors from './pages/Admin/ManageDoctors';
+import SystemSettings from './pages/Admin/SystemSettings';
 
 function App() {
   return (
@@ -50,11 +54,26 @@ function App() {
           }
         />
 
+        {/* Admin routes */}
         <Route
           path="/admin/*"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <AdminDashboard />
+              <Routes>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<ManageUsers />} />
+                <Route path="doctors" element={<ManageDoctors />} />
+                <Route path="settings" element={<SystemSettings />} />
+              </Routes>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/medications"
+          element={
+            <ProtectedRoute allowedRoles={['patient']}>
+              <Medications />
             </ProtectedRoute>
           }
         />

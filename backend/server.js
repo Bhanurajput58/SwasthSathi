@@ -35,12 +35,14 @@ const authRoutes = require('./routes/auth');
 const doctorRoutes = require('./routes/doctor');
 const appointmentRoutes = require('./routes/appointment');
 const medicalRecordRoutes = require('./routes/medicalRecord');
+const adminRoutes = require('./routes/admin');
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/medical-records', medicalRecordRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Base route
 app.get('/', (req, res) => {

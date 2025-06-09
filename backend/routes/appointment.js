@@ -25,9 +25,9 @@ router.delete('/patient/:id', authorize('patient'), deleteAppointment);
 router.put('/patient/:id/cancel', authorize('patient'), cancelAppointment);
 
 // Doctor routes
-router.get('/doctor', authorize('doctor'), getDoctorAppointments);
-router.get('/doctor/:id', authorize('doctor'), getAppointment);
-router.put('/doctor/:id/status', authorize('doctor'), updateAppointmentStatus);
+router.get('/doctor/:doctorId', authorize('doctor'), getDoctorAppointments);
+router.get('/doctor/:doctorId/appointments', authorize('doctor'), getAppointment);
+router.put('/doctor/:doctorId/appointments/:id/status', authorize('doctor'), updateAppointmentStatus);
 
 // Admin routes
 router.get('/admin', authorize('admin'), getAppointments);

@@ -59,7 +59,6 @@ const updateAppointment = async (req, res) => {
       return res.status(404).json({ message: 'Appointment not found' });
     }
 
-    // Update fields
     Object.assign(appointment, req.body);
     await appointment.save();
 
@@ -99,11 +98,24 @@ const getPatientAppointments = async (req, res) => {
 
 const getDoctorAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find({ doctor: req.user._id })
-      .populate('patient', 'name email');
+    const { doctorId } = req.params;
+    
+    if (!doctorId) {
+      return res.status(400).json({ message: 'Doctor ID is required' });
+    }
+
+    const appointments = await Appointment.find({ doctor: doctorId })
+      .populate('patient', 'name email')
+      .sort({ date: 1, time: 1 }); // Sort by date and time
+
+    if (!appointments) {
+      return res.status(404).json({ message: 'No appointments found for this doctor' });
+    }
+
     res.json(appointments);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error fetching doctor appointments:', error);
+    res.status(500).json({ message: 'Error fetching appointments', error: error.message });
   }
 };
 

@@ -7,19 +7,16 @@ const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
   const [todayAppointments, setTodayAppointments] = useState([]);
+  const [pendingReportsCount, setPendingReportsCount] = useState(0);
 
   useEffect(() => {
-    
     const fetchDoctorData = async () => {
       try {
-        const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
-        
-        
-        const appointmentsResponse = await fetch('http://localhost:5000/api/appointments/doctor', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        // Fetch appointments for the current doctor
+        const appointmentsResponse = await fetch(`http://localhost:5000/api/appointments/doctor/${user?._id}`);
+        if (!appointmentsResponse.ok) {
+          throw new Error('Failed to fetch appointments');
+        }
         const appointmentsData = await appointmentsResponse.json();
         setAppointments(appointmentsData);
 
@@ -30,21 +27,30 @@ const DoctorDashboard = () => {
         );
         setTodayAppointments(todayAppts);
 
-        // Fetch patients
-        const patientsResponse = await fetch('http://localhost:5000/api/patients', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        // Fetch patients associated with the doctor
+        const patientsResponse = await fetch(`http://localhost:5000/api/patients/doctor/${user?._id}`);
+        if (!patientsResponse.ok) {
+          throw new Error('Failed to fetch patients');
+        }
         const patientsData = await patientsResponse.json();
         setPatients(patientsData);
+
+        const pendingReportsResponse = await fetch(`http://localhost:5000/api/medicalrecords/doctor/${user?._id}/pending-reports`);
+        if (!pendingReportsResponse.ok) {
+          throw new Error('Failed to fetch pending reports');
+        }
+        const pendingReportsData = await pendingReportsResponse.json();
+        setPendingReportsCount(pendingReportsData.count);
+
       } catch (error) {
         console.error('Error fetching doctor data:', error);
       }
     };
 
-    fetchDoctorData();
-  }, []);
+    if (user?._id) {
+      fetchDoctorData();
+    }
+  }, [user?._id]);
 
   return (
     <div className="doctor-dashboard-container">
@@ -54,7 +60,7 @@ const DoctorDashboard = () => {
           <h1 className="welcome-section h1">Welcome, Dr. {user?.name}</h1>
           <p className="welcome-section p">Your Patient Care Command Center</p>
 
-          {/* Quick Stats - Moved Inside Welcome Section */}
+          {/* Quick Stats*/}
           <div className="quick-stats-grid">
             <div className="quick-stat-card">
               <h2 className="quick-stat-card h2">Today's Appointments</h2>
@@ -66,7 +72,7 @@ const DoctorDashboard = () => {
             </div>
             <div className="quick-stat-card">
               <h2 className="quick-stat-card h2">Pending Reports</h2>
-              <p className="quick-stat-card p text-orange">0</p>
+              <p className="quick-stat-card p text-orange">{pendingReportsCount}</p>
             </div>
           </div>
         </div>

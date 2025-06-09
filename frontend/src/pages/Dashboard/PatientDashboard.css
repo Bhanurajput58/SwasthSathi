@@ -152,30 +152,9 @@
 
 .quick-action-icon-container {
   border-radius: 9999px;
-  padding: 0.75rem;
   transition: background-color 0.15s ease-in-out;
 }
 
-.quick-action-icon-container.blue {
-  background-color: #dbeafe;
-}
-.quick-action-card:hover .quick-action-icon-container.blue {
-  background-color: #dcfce7;
-}
-
-.quick-action-icon-container.green {
-  background-color: #dcfce7;
-}
-.quick-action-card:hover .quick-action-icon-container.green {
-  background-color: #dcfce7;
-}
-
-.quick-action-icon-container.red {
-  background-color: #fee2e2;
-}
-.quick-action-card:hover .quick-action-icon-container.red {
-  background-color: #dcfce7;
-}
 
 .quick-action-icon {
   height: 1.5rem;
@@ -206,7 +185,6 @@
 .action-button {
   width: 100%;
   font-weight: 500;
-  /* font-size: 21px; */
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   padding-left: 1rem;

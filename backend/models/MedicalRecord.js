@@ -21,6 +21,11 @@ const medicalRecordSchema = new mongoose.Schema({
   },
   notes: {
     type: String
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'completed', 'reviewed'],
+    default: 'pending'
   }
 }, {
   timestamps: true

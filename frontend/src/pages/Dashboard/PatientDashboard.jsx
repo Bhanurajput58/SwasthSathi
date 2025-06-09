@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 import { Calendar, FileText, Phone, User, Clock, Activity } from 'lucide-react';
 import './PatientDashboard.css';
 
@@ -61,12 +62,12 @@ const PatientDashboard = () => {
               <User className="header-icon" />
             </div>
             <div>
-              <h1 className="welcome-title">Welcome back, {user?.name}!</h1>
+              <h1 className="welcome-title">Welcome, {user?.name}!</h1>
               <p className="welcome-subtitle">Manage your health journey with ease</p>
             </div>
           </div>
           
-          {/* Health Stats - Moved Inside Header Section */}
+          {/* Health Stats*/}
           <div className="health-stats-grid">
             <div className="health-stat-card">
               <div className="health-stat-content">
@@ -112,22 +113,22 @@ const PatientDashboard = () => {
               <h2 className="quick-action-title">Book Appointment</h2>
             </div>
             <p className="quick-action-description">Schedule a visit with your preferred doctor</p>
-            <button className="action-button blue">
+            <Link to="/doctors" className="action-button blue">
               Find a Doctor
-            </button>
+            </Link>
           </div>
 
           <div className="quick-action-card">
             <div className="quick-action-content">
-              <div className="quick-action-icon-container green">
-                <FileText className="quick-action-icon green" />
+              <div className="quick-action-icon-container purple">
+                <FileText className="quick-action-icon purple" />
               </div>
-              <h2 className="quick-action-title">View Records</h2>
+              <h2 className="quick-action-title">Manage Medications</h2>
             </div>
-            <p className="quick-action-description">Access your complete medical history</p>
-            <button className="action-button green">
-              Medical History
-            </button>
+            <p className="quick-action-description">View and manage your current prescriptions</p>
+            <Link to="/medications" className="action-button purple">
+              View Medications
+            </Link>
           </div>
 
           <div className="quick-action-card">
@@ -138,9 +139,9 @@ const PatientDashboard = () => {
               <h2 className="quick-action-title">Emergency</h2>
             </div>
             <p className="quick-action-description">24/7 emergency medical assistance</p>
-            <button className="action-button red">
+            <Link to="/contact" className="action-button red">
               Contact Emergency
-            </button>
+            </Link>
           </div>
         </div>
 
