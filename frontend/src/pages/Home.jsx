@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaUserMd, FaHospital, FaAmbulance, FaPhoneAlt, FaWhatsapp, FaSearch, FaMapMarkerAlt, FaStar, FaClock, FaUserFriends, FaArrowRight } from 'react-icons/fa';
 import { MdHealthAndSafety, MdLocalPharmacy, MdLocationOn, MdEmail } from 'react-icons/md';
@@ -10,9 +10,6 @@ import heroImage3 from '../assets/images/hero-img03.png';
 import icon02 from '../assets/images/icon02.png';
 import icon03 from '../assets/images/icon03.png';
 import dieting from '../assets/images/dieting.png';
-import doctorImg01 from '../assets/images/doctor-img01.png';
-import doctorImg02 from '../assets/images/doctor-img02.png';
-import doctorImg03 from '../assets/images/doctor-img03.png';
 import ServiceCard from '../components/Services/ServiceCard';
 import './Home.css';
 import DoctorCard from '../components/Doctors/DoctorCard';
@@ -23,6 +20,9 @@ import faqImg from '../assets/images/faq-img.png';
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [email, setEmail] = useState('');
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const services = [
     {
@@ -69,38 +69,25 @@ const Home = () => {
     },
   ];
 
-  const doctors = [
-    {
-      id: '1',
-      name: 'Dr. Akash Ray',
-      specialization: 'Surgeon',
-      avgRating: 4.8,
-      totalRating: 272,
-      photo: doctorImg01,
-      totalPatients: 1500,
-      hospital: 'Mount Adora Hospital'
-    },
-    {
-      id: '2',
-      name: 'Dr. Aman Singh',
-      specialization: 'Neurologist',
-      avgRating: 4.8,
-      totalRating: 272,
-      photo: doctorImg02,
-      totalPatients: 1500,
-      hospital: 'Patuakhali Medical College'
-    },
-    {
-      id: '3',
-      name: 'Dr. Amit Verma',
-      specialization: 'Dermatologist',
-      avgRating: 4.8,
-      totalRating: 272,
-      photo: doctorImg03,
-      totalPatients: 1500,
-      hospital: 'Cumilla Medical College'
-    }
-  ];
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/doctors');
+        if (!response.ok) {
+          throw new Error('Failed to fetch doctors');
+        }
+        const data = await response.json();
+        // Get only first 3 doctors for the home page
+        setDoctors(data.slice(0, 3));
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -313,11 +300,21 @@ const Home = () => {
               brings years of experience and dedication to your well-being.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {doctors.map(doctor => (
-              <DoctorCard key={doctor.id} doctor={doctor} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-8">
+              <p>Loading doctors...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-500">
+              <p>Error: {error}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+              {doctors.map(doctor => (
+                <DoctorCard key={doctor._id} doctor={doctor} />
+              ))}
+            </div>
+          )}
           <div className="text-center mt-12">
             <Link
               to="/doctors"
@@ -397,7 +394,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ======== FAQ Section ======== */}
       <section className="faq__section">
         <div className="container">
           <FaqList />

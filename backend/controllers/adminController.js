@@ -25,7 +25,7 @@ const updateUser = async (req, res) => {
 
     await user.save();
 
-    // Return updated user without password
+    
     const updatedUser = await User.findById(user._id).select('-password');
     res.json(updatedUser);
   } catch (error) {
@@ -68,10 +68,23 @@ const getRecentAppointments = async (req, res) => {
     const appointments = await Appointment.find()
       .sort({ createdAt: -1 })
       .limit(5)
-      .populate('patient doctor', '-password');
+      .populate({
+        path: 'patient',
+        select: 'name email'
+      })
+      .populate({
+        path: 'doctor',
+        select: 'name email specialization'
+      });
+
+    if (!appointments) {
+      return res.status(404).json({ message: 'No appointments found' });
+    }
+
     res.json(appointments);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching recent appointments:', error);
+    res.status(500).json({ message: 'Error fetching recent appointments', error: error.message });
   }
 };
 
@@ -101,6 +114,53 @@ const getAllDoctors = async (req, res) => {
   }
 };
 
+const approveDoctor = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const { isApproved } = req.body;
+
+    console.log('Approving doctor:', { 
+      doctorId, 
+      isApproved,
+      userRole: req.user.role,
+      userId: req.user._id
+    });
+
+    const doctor = await User.findOne({ _id: doctorId, role: 'doctor' });
+    
+    if (!doctor) {
+      console.log('Doctor not found:', doctorId);
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    console.log('Found doctor:', { 
+      id: doctor._id, 
+      name: doctor.name, 
+      currentApproval: doctor.isApproved 
+    });
+
+    doctor.isApproved = isApproved;
+    await doctor.save();
+
+    console.log('Doctor approved successfully:', { 
+      id: doctor._id, 
+      name: doctor.name, 
+      newApproval: doctor.isApproved 
+    });
+
+    res.json({
+      _id: doctor._id,
+      name: doctor.name,
+      email: doctor.email,
+      role: doctor.role,
+      isApproved: doctor.isApproved
+    });
+  } catch (error) {
+    console.error('Error approving doctor:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAdminStats,
   getRecentUsers,
@@ -108,5 +168,6 @@ module.exports = {
   getAllUsers,
   updateUser,
   deleteUser,
-  getAllDoctors
+  getAllDoctors,
+  approveDoctor
 }; 

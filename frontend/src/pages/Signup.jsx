@@ -9,7 +9,15 @@ const Signup = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'patient', 
+    role: 'patient',
+    phone: '',
+    specialization: '',
+    experience: '',
+    hospital: '',
+    qualification: '',
+    bio: '',
+    about: '',
+    photo: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -130,6 +138,88 @@ const Signup = () => {
               <option value="admin">Admin</option>
             </select>
           </div>
+
+          {formData.role === 'doctor' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-group">
+                <label htmlFor="specialization">Specialization</label>
+                <input
+                  type="text"
+                  id="specialization"
+                  name="specialization"
+                  value={formData.specialization}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="experience">Years of Experience</label>
+                <input
+                  type="number"
+                  id="experience"
+                  name="experience"
+                  value={formData.experience}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="hospital">Hospital/Clinic</label>
+                <input
+                  type="text"
+                  id="hospital"
+                  name="hospital"
+                  value={formData.hospital}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="qualification">Qualification</label>
+                <input
+                  type="text"
+                  id="qualification"
+                  name="qualification"
+                  value={formData.qualification}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group md:col-span-2">
+                <label htmlFor="bio">Bio</label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  rows="3"
+                  required
+                />
+              </div>
+              <div className="form-group md:col-span-2">
+                <label htmlFor="about">About</label>
+                <textarea
+                  id="about"
+                  name="about"
+                  value={formData.about}
+                  onChange={handleChange}
+                  rows="3"
+                  required
+                />
+              </div>
+              <div className="form-group md:col-span-2">
+                <label htmlFor="photo">Photo URL</label>
+                <input
+                  type="url"
+                  id="photo"
+                  name="photo"
+                  value={formData.photo}
+                  onChange={handleChange}
+                  placeholder="https://example.com/your-photo.jpg"
+                />
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

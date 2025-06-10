@@ -37,7 +37,7 @@ const AdminDashboard = () => {
         const statsData = await statsResponse.json();
         setStats(statsData);
 
-        const usersResponse = await fetch('http://localhost:5000/api/admin/users/recent', {
+        const usersResponse = await fetch('http://localhost:5000/api/admin/recent-users', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
         const usersData = await usersResponse.json();
         setRecentUsers(usersData);
 
-        const appointmentsResponse = await fetch('http://localhost:5000/api/admin/appointments/recent', {
+        const appointmentsResponse = await fetch('http://localhost:5000/api/admin/recent-appointments', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

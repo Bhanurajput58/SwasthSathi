@@ -32,7 +32,8 @@ const register = async (req, res) => {
       password,
       role,
       phone,
-      address
+      address,
+      isApproved: role === 'doctor' ? false : true 
     });
 
     if (user) {
@@ -41,6 +42,7 @@ const register = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        isApproved: user.isApproved,
         token: generateToken(user._id)
       });
     }
@@ -59,27 +61,41 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Please provide email and password' });
     }
 
+    console.log('Attempting login for email:', email);
+
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log('User not found for email:', email);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    console.log('User found:', {
+      id: user._id,
+      role: user.role,
+      isApproved: user.isApproved
+    });
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      console.log('Password mismatch for user:', user._id);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    console.log('Login successful for user:', user._id);
 
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
+      isApproved: user.isApproved,
       token: generateToken(user._id)
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(400).json({ message: error.message });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ message: 'Internal server error. Please try again later.' });
   }
 };
 

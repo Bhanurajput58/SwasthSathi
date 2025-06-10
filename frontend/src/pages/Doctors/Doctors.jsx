@@ -1,29 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DoctorCard from '../../components/Doctors/DoctorCard';
 import { FaSearch } from 'react-icons/fa';
-
-const doctorsData = [
-  {
-    id: 1,
-    name: "Dr. Akash Ray",
-    specialization: "Cardiologist",
-    avgRating: 4.8,
-    totalRating: 272,
-    photo: "http://localhost:5173/src/assets/images/doctor-img01.png",
-    totalPatients: 1500,
-    hospital: "City Hospital"
-  },
-  {
-    id: 2,
-    name: "Dr. Aman Singh",
-    specialization: "Neurologist",
-    avgRating: 4.5,
-    totalRating: 189,
-    photo: "http://localhost:5173/src/assets/images/doctor-img02.png",
-    totalPatients: 1200,
-    hospital: "General Hospital"
-  },
-];
 
 const specializations = [
   "All",
@@ -38,14 +15,52 @@ const specializations = [
 const Doctors = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('All');
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const filteredDoctors = doctorsData.filter(doctor => {
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/doctors');
+        if (!response.ok) {
+          throw new Error('Failed to fetch doctors');
+        }
+        const data = await response.json();
+        setDoctors(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
+
+  const filteredDoctors = doctors.filter(doctor => {
     const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doctor.hospital.toLowerCase().includes(searchTerm.toLowerCase());
+      (doctor.hospital && doctor.hospital.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesSpecialization = selectedSpecialization === 'All' ||
       doctor.specialization === selectedSpecialization;
     return matchesSearch && matchesSpecialization;
   });
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p>Loading doctors...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -60,16 +75,28 @@ const Doctors = () => {
       {/* Filter Section */}
       <div className="mb-6">
         <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+          {/* Search Bar */}
+          <div className="relative w-full md:w-96">
+            <input
+              type="text"
+              placeholder="Search by name or hospital..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
 
           {/* Specialization Filter */}
           <div className="flex gap-1 overflow-x-auto pb-2 w-full md:w-auto">
             {specializations.map((spec) => (
               <button
                 key={spec}
-                className={`px-6 py-1 rounded-full whitespace-nowrap transition-all duration-300 ${selectedSpecialization === spec
+                className={`px-6 py-1 rounded-full whitespace-nowrap transition-all duration-300 ${
+                  selectedSpecialization === spec
                     ? 'bg-[#0EA5E9] text-black'
                     : 'bg-[#e0f2fe] text-[#0ea5e9] hover:bg-[#bae6fd]'
-                  }`}
+                }`}
                 onClick={() => setSelectedSpecialization(spec)}
               >
                 {spec}
@@ -82,7 +109,7 @@ const Doctors = () => {
       {/* Doctors Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredDoctors.map((doctor) => (
-          <DoctorCard key={doctor.id} doctor={doctor} />
+          <DoctorCard key={doctor._id} doctor={doctor} />
         ))}
       </div>
 

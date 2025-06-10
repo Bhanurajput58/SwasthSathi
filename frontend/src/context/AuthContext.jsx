@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error(data.message || 'Login failed');
       }
 
       const userData = {
@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }) => {
         name: data.name,
         email: data.email,
         role: data.role,
+        isApproved: data.isApproved,
         token: data.token
       };
 
@@ -69,7 +70,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error(data.message || 'Registration failed');
       }
 
       // Store user data and token
@@ -78,6 +79,7 @@ export const AuthProvider = ({ children }) => {
         name: data.name,
         email: data.email,
         role: data.role,
+        isApproved: data.isApproved,
         token: data.token
       };
 

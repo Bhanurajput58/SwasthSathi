@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaStar, FaPhoneAlt, FaEnvelope, FaWhatsapp, FaUserMd, FaAward, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
-import doctors from '../../data/doctors';
+import './DoctorDetails.css';
 
 const DoctorDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const doctor = doctors.find(doc => doc.id === Number(id));
+  const [doctor, setDoctor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [booking, setBooking] = useState({ name: '', email: '', date: '', time: '' });
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [newReview, setNewReview] = useState({ name: '', rating: 5, comment: '' });
@@ -17,7 +19,45 @@ const DoctorDetails = () => {
     '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM',
   ];
 
-  if (!doctor) {
+  const isValidImageUrl = (url) => {
+    if (!url) return false;
+    if (url.startsWith('data:image')) return true;
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    const fetchDoctorDetails = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/doctors/${id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch doctor details');
+        }
+        const data = await response.json();
+        setDoctor(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctorDetails();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
+      </div>
+    );
+  }
+
+  if (error || !doctor) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100">
         <h2 className="text-3xl font-bold text-slate-800 mb-6">Doctor not found</h2>
@@ -73,19 +113,36 @@ const DoctorDetails = () => {
           <div className="flex flex-col md:flex-row gap-6 mb-8">
             {/*Doctor Image and Basic Info */}
             <div className="md:w-1/3 flex flex-col items-center">
-              <img
-                src={doctor.image}
-                alt={doctor.name}
-                className="w-36 h-36 rounded-full object-cover mb-4 border-3 border-sky-100 shadow-md"
-              />
+              {doctor.photo && isValidImageUrl(doctor.photo) ? (
+                <img
+                  src={doctor.photo}
+                  alt={doctor.name}
+                  className="w-36 h-36 rounded-full object-cover mb-4 border-3 border-sky-100 shadow-md"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = null;
+                    e.target.parentElement.innerHTML = `
+                      <div class="w-36 h-36 rounded-full bg-slate-100 flex items-center justify-center mb-4 border-3 border-sky-100 shadow-md">
+                        <svg class="w-16 h-16 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    `;
+                  }}
+                />
+              ) : (
+                <div className="w-36 h-36 rounded-full bg-slate-100 flex items-center justify-center mb-4 border-3 border-sky-100 shadow-md">
+                  <FaUserMd className="w-16 h-16 text-slate-400" />
+                </div>
+              )}
               <h1 className="text-2xl font-bold text-slate-800 mb-2">{doctor.name}</h1>
               <div className="flex items-center gap-2 mb-4">
                 <span className="bg-sky-100 text-sky-600 px-4 py-1 rounded-full text-sm font-medium">
-                  {doctor.specialty}
+                  {doctor.specialization}
                 </span>
                 <span className="flex items-center gap-1 text-amber-500">
                   <FaStar className="text-sm" />
-                  <span className="text-slate-700 text-sm">{doctor.rating}</span>
+                  <span className="text-slate-700 text-sm">{doctor.avgRating || '4.8'}</span>
                 </span>
               </div>
             </div>
@@ -97,25 +154,15 @@ const DoctorDetails = () => {
                   <FaMapMarkerAlt className="text-base" />
                   <span className="font-medium">Location & Experience</span>
                 </div>
-                <p className="text-slate-700">{doctor.location}</p>
-                <p className="text-slate-700 mt-1">{doctor.experience} years of experience</p>
+                <p className="text-slate-700">{doctor.hospital || 'Not specified'}</p>
+                <p className="text-slate-700 mt-1">{doctor.experience || '0'} years of experience</p>
               </div>
               <div className="bg-slate-50 rounded-lg p-4">
                 <div className="flex items-center gap-2 text-slate-600 mb-2">
                   <FaUserMd className="text-base" />
                   <span className="font-medium">About</span>
                 </div>
-                <p className="text-slate-700 line-clamp-3">{doctor.bio}</p>
-                <div className="mt-2">
-                  <span className="text-sm font-medium text-slate-600">Languages:</span>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {doctor.languages.map(lang => (
-                      <span key={lang} className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-xs">
-                        {lang}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                <p className="text-slate-700 line-clamp-3">{doctor.bio || 'No bio available'}</p>
               </div>
 
               <div className="bg-slate-50 rounded-lg p-4 md:col-span-2">
@@ -124,31 +171,19 @@ const DoctorDetails = () => {
                   <span className="font-medium">Contact Information</span>
                 </div>
                 <div className="flex flex-wrap gap-4">
-                  <a href={`tel:${doctor.contact.phone}`} className="flex items-center gap-2 text-sky-600 hover:text-sky-700">
-                    <FaPhoneAlt className="text-sm" />
-                    <span>{doctor.contact.phone}</span>
-                  </a>
-                  <a href={`mailto:${doctor.contact.email}`} className="flex items-center gap-2 text-sky-600 hover:text-sky-700">
-                    <FaEnvelope className="text-sm" />
-                    <span>{doctor.contact.email}</span>
-                  </a>
-                  <a href={doctor.contact.whatsapp} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sky-600 hover:text-sky-700">
-                    <FaWhatsapp className="text-sm" />
-                    <span>WhatsApp</span>
-                  </a>
+                  {doctor.phone && (
+                    <a href={`tel:${doctor.phone}`} className="flex items-center gap-2 text-sky-600 hover:text-sky-700">
+                      <FaPhoneAlt className="text-sm" />
+                      <span>{doctor.phone}</span>
+                    </a>
+                  )}
+                  {doctor.email && (
+                    <a href={`mailto:${doctor.email}`} className="flex items-center gap-2 text-sky-600 hover:text-sky-700">
+                      <FaEnvelope className="text-sm" />
+                      <span>{doctor.email}</span>
+                    </a>
+                  )}
                 </div>
-              </div>
-              <div className="bg-slate-50 rounded-lg p-4">
-                <div className="mt-2">
-                <span className="text-sm font-medium text-slate-600">Languages:</span>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {doctor.languages.map(lang => (
-                    <span key={lang} className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-xs">
-                      {lang}
-                    </span>
-                  ))}
-                </div>
-              </div>
               </div>
             </div>
           </div>

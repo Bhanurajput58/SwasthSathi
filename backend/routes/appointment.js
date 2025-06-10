@@ -35,6 +35,7 @@ router.get('/admin/:id', authorize('admin'), getAppointment);
 router.put('/admin/:id', authorize('admin'), updateAppointment);
 router.delete('/admin/:id', authorize('admin'), deleteAppointment);
 
+// Common routes
 router.route('/:id')
   .put(updateAppointmentStatus);
 

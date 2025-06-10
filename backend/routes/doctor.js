@@ -12,23 +12,29 @@ const {
   updateDoctorAvailability,
   addDoctorReview,
   getDoctorReviews,
-  getDoctorById
+  getDoctorById,
+  getDoctorProfile
 } = require('../controllers/doctorController');
 
 // Public routes
 router.get('/', getDoctors);
-router.get('/:id', getDoctorById);
-router.get('/:id/availability', getDoctorAvailability);
-router.get('/:id/reviews', getDoctorReviews);
 
 // Protected routes
 router.use(protect);
+
+// Doctor profile route - must come before /:id routes
+router.get('/profile', authorize('doctor'), getDoctorProfile);
 
 // Doctor and Admin only routes
 router.post('/', authorize('admin'), registerDoctor);
 router.put('/:id', authorize('doctor', 'admin'), updateDoctor);
 router.delete('/:id', authorize('admin'), deleteDoctor);
 router.put('/:id/availability', authorize('doctor'), updateDoctorAvailability);
+
+// Public routes that need to come after specific routes
+router.get('/:id', getDoctor);
+router.get('/:id/availability', getDoctorAvailability);
+router.get('/:id/reviews', getDoctorReviews);
 
 // Patient only routes
 router.post('/:id/reviews', authorize('patient'), addDoctorReview);

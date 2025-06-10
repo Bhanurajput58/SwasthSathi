@@ -36,18 +36,27 @@
   transform-origin: bottom left;
 }
 
-.doctor-card__img {
+.doctor-card img {
   width: 100%;
   height: 280px;
   object-fit: cover;
-  border-bottom: 1px solid #e2e8f0;
-  transition: transform 0.5s ease;
-  position: relative;
-  overflow: hidden;
+  object-position: center;
+  display: block;
+  transition: transform 0.3s ease;
 }
 
-.doctor-card:hover .doctor-card__img img {
+.doctor-card img:hover {
   transform: scale(1.05);
+}
+
+.doctor-card .no-image {
+  width: 100%;
+  height: 280px;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
 }
 
 .doctor-card__content {

@@ -26,11 +26,11 @@ router.get('/patient/:id', authorize('patient'), getMedicalRecord);
 router.post('/', authorize('doctor'), createMedicalRecord);
 router.get('/doctor', authorize('doctor'), getDoctorMedicalRecords);
 router.get('/doctor/:id', authorize('doctor'), getMedicalRecord);
+router.get('/doctor/:id/pending-reports', authorize('doctor'), getPendingMedicalRecordsCount);
 router.put('/doctor/:id', authorize('doctor'), updateMedicalRecord);
 router.put('/doctor/:id/followup', authorize('doctor'), updateFollowUpDate);
 router.post('/doctor/:id/attachments', authorize('doctor'), addMedicalRecordAttachment);
 router.delete('/doctor/:id/attachments/:attachmentId', authorize('doctor'), removeMedicalRecordAttachment);
-router.get('/doctor/pending-reports-count', authorize('doctor'), getPendingMedicalRecordsCount);
 
 // Admin routes
 router.get('/admin', authorize('admin'), getMedicalRecords);

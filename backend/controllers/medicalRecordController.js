@@ -180,11 +180,15 @@ const updateFollowUpDate = async (req, res) => {
 
 const getPendingMedicalRecordsCount = async (req, res) => {
   try {
-    const doctorId = req.user._id;
-    const count = await MedicalRecord.countDocuments({ doctor: doctorId, status: 'pending' });
+    const count = await MedicalRecord.countDocuments({
+      doctor: req.params.id,
+      status: 'pending'
+    });
+    
     res.json({ count });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching pending reports count:', error);
+    res.status(500).json({ message: 'Error fetching pending reports count', error: error.message });
   }
 };
 
