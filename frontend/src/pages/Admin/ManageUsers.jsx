@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import EditUserModal from '../../components/EditUserModal';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 import './Admin.css';
@@ -99,10 +100,11 @@ const ManageUsers = () => {
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h1>Manage Users</h1>
-        <button className="action-button cyan" onClick={() => navigate('/admin')}>
-          Back to Dashboard
+        <button className="back-to-dashboard" onClick={() => navigate('/admin')}>
+          <FaArrowLeft />
+          Back
         </button>
+        <h1>Manage Users</h1>
       </div>
 
       <div className="users-grid">

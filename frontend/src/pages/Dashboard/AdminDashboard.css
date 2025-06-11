@@ -219,6 +219,16 @@
   box-shadow: 0 12px 25px rgba(220, 53, 69, 0.4);
 }
 
+.action-button.violet {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.action-button.violet:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-2px);
+}
+
 .recent-section {
   background: white;
   padding: 23px;

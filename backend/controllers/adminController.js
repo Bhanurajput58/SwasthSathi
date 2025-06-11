@@ -161,6 +161,125 @@ const approveDoctor = async (req, res) => {
   }
 };
 
+// Get all patients
+const getPatients = async (req, res) => {
+  try {
+    const patients = await User.find({ role: 'patient' })
+      .select('-password') 
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(patients);
+  } catch (error) {
+    console.error('Error fetching patients:', error);
+    res.status(500).json({ message: 'Error fetching patients', error: error.message });
+  }
+};
+
+// Assign doctor to patient
+const assignDoctorToPatient = async (req, res) => {
+  try {
+    const { patientId, doctorId } = req.body;
+
+    // Verify both patient and doctor exist
+    const [patient, doctor] = await Promise.all([
+      User.findOne({ _id: patientId, role: 'patient' }),
+      User.findOne({ _id: doctorId, role: 'doctor' })
+    ]);
+
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    const appointment = await Appointment.create({
+      patient: patientId,
+      doctor: doctorId,
+      date: new Date(),
+      time: '09:00',
+      reason: 'Initial consultation',
+      status: 'confirmed'
+    });
+
+    res.status(200).json({
+      message: 'Doctor assigned successfully',
+      appointment
+    });
+  } catch (error) {
+    console.error('Error assigning doctor:', error);
+    res.status(500).json({ message: 'Error assigning doctor', error: error.message });
+  }
+};
+
+
+const getPatientDoctor = async (req, res) => {
+  try {
+    console.log('Getting doctor details for patient:', req.params.patientId);
+    
+    const patient = await User.findById(req.params.patientId);
+    
+    if (!patient) {
+      console.log('Patient not found:', req.params.patientId);
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+
+    // Find the doctor directly from User collection
+    const doctor = await User.findOne({ 
+      role: 'doctor',
+      isApproved: true
+    });
+
+    if (!doctor) {
+      console.log('No approved doctor found');
+      return res.status(404).json({ message: 'No approved doctor found' });
+    }
+
+    console.log('Found doctor:', doctor.name);
+
+    // Return doctor details
+    const doctorDetails = {
+      name: doctor.name,
+      photo: doctor.photo,
+      specialization: doctor.specialization,
+      email: doctor.email,
+      phone: doctor.phone,
+      experience: doctor.experience,
+      qualification: doctor.qualification,
+      address: doctor.address,
+      licenseNumber: doctor.licenseNumber || 'Not provided'
+    };
+
+    console.log('Sending doctor details:', doctorDetails);
+    res.json(doctorDetails);
+  } catch (error) {
+    console.error('Error in getPatientDoctor:', error);
+    res.status(500).json({ 
+      message: 'Error fetching doctor details',
+      error: error.message 
+    });
+  }
+};
+
+// Get patient details by ID
+const getPatientDetails = async (req, res) => {
+  try {
+    const patient = await User.findById(req.params.id)
+      .select('-password')
+      .lean();
+
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+
+    res.status(200).json(patient);
+  } catch (error) {
+    console.error('Error fetching patient details:', error);
+    res.status(500).json({ message: 'Error fetching patient details', error: error.message });
+  }
+};
+
 module.exports = {
   getAdminStats,
   getRecentUsers,
@@ -169,5 +288,9 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllDoctors,
-  approveDoctor
+  approveDoctor,
+  getPatients,
+  assignDoctorToPatient,
+  getPatientDoctor,
+  getPatientDetails
 }; 

@@ -7,7 +7,9 @@ import Services from './pages/Services';
 import Signup from './pages/Signup';
 import Contact from './pages/Contact';
 import Doctors from './pages/Doctors/Doctors';
+import AllDoctors from './pages/Doctors/AllDoctors';
 import DoctorDetails from './pages/Doctors/DoctorDetails';
+import DoctorProfile from './pages/Doctors/DoctorProfile';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -18,6 +20,8 @@ import Medications from './pages/Medications';
 import ManageUsers from './pages/Admin/ManageUsers';
 import ManageDoctors from './pages/Admin/ManageDoctors';
 import SystemSettings from './pages/Admin/SystemSettings';
+import ManagePatients from './pages/Admin/ManagePatients';
+import PatientProfile from './pages/Patient/PatientProfile';
 
 function App() {
   return (
@@ -40,7 +44,12 @@ function App() {
           path="/patient/*"
           element={
             <ProtectedRoute allowedRoles={['patient']}>
-              <PatientDashboard />
+              <Routes>
+                <Route index element={<PatientDashboard />} />
+                <Route path="all-doctors" element={<AllDoctors />} />
+                <Route path="doctors/:id" element={<DoctorProfile />} />
+                <Route path="profile" element={<PatientProfile />} />
+              </Routes>
             </ProtectedRoute>
           }
         />
@@ -64,6 +73,7 @@ function App() {
                 <Route path="users" element={<ManageUsers />} />
                 <Route path="doctors" element={<ManageDoctors />} />
                 <Route path="settings" element={<SystemSettings />} />
+                <Route path="patients" element={<ManagePatients />} />
               </Routes>
             </ProtectedRoute>
           }

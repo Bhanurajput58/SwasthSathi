@@ -1,0 +1,209 @@
+.doctor-profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.profile-header {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-image {
+  flex-shrink: 0;
+  width: 200px;
+  height: 200px;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.doctor-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 4rem;
+}
+
+.doctor-basic-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.doctor-basic-info h1 {
+  font-size: 2rem;
+  color: #1e293b;
+  margin: 0;
+}
+
+.specialization {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #e0f2fe;
+  color: #0ea5e9;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+
+.star-icon {
+  color: #fbbf24;
+}
+
+.total-ratings {
+  color: #64748b;
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.profile-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.profile-section h2 {
+  color: #1e293b;
+  font-size: 1.5rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #64748b;
+}
+
+.contact-item svg {
+  color: #0ea5e9;
+  font-size: 1.2rem;
+}
+
+.education-list,
+.experience-list,
+.availability-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.education-item,
+.experience-item,
+.availability-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+}
+
+.education-item svg,
+.experience-item svg,
+.availability-item svg {
+  color: #0ea5e9;
+  font-size: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.education-item h3,
+.experience-item h3,
+.availability-item h3 {
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.education-item p,
+.experience-item p,
+.availability-item p {
+  color: #64748b;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.book-appointment-btn {
+  padding: 0.25rem 0.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  background-color: #0ea5e9;
+  color: white;
+}
+
+.book-appointment-btn:hover {
+  background-color: #0284c7;
+}
+
+.loading-message,
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.error-message {
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .doctor-image {
+    width: 150px;
+    height: 150px;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+} 

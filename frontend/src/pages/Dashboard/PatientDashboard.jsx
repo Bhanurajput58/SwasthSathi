@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar, FileText, Phone, User, Clock, Activity } from 'lucide-react';
 import './PatientDashboard.css';
 
 const PatientDashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -22,7 +29,7 @@ const PatientDashboard = () => {
 
         const [appointmentsRes, recordsRes] = await Promise.all([
           fetch('http://localhost:5000/api/appointments/patient', { headers }),
-          fetch('http://localhost:5000/api/medical-records/patient', { headers }),
+          fetch('http://localhost:5000/api/medical-records/patient', { headers })
         ]);
 
         const appointmentsData = await appointmentsRes.json();
@@ -32,11 +39,13 @@ const PatientDashboard = () => {
         setMedicalRecords(recordsData);
       } catch (error) {
         console.error('Error fetching patient data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchPatientData();
-  }, []);
+  }, [user]);
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -61,9 +70,20 @@ const PatientDashboard = () => {
             <div className="header-icon-container">
               <User className="header-icon" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="welcome-title">Welcome, {user?.name}!</h1>
               <p className="welcome-subtitle">Manage your health journey with ease</p>
+            </div>
+            <div className="header-actions">
+              <Link to="/patient/profile" className="view-profile-btn">
+                View Profile
+              </Link>
+              <button 
+                className="logout-btn"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
             </div>
           </div>
           
@@ -113,7 +133,7 @@ const PatientDashboard = () => {
               <h2 className="quick-action-title">Book Appointment</h2>
             </div>
             <p className="quick-action-description">Schedule a visit with your preferred doctor</p>
-            <Link to="/doctors" className="action-button blue">
+            <Link to="/patient/all-doctors" className="action-button blue">
               Find a Doctor
             </Link>
           </div>
@@ -157,7 +177,9 @@ const PatientDashboard = () => {
               <h2 className="section-title">Upcoming Appointments</h2>
             </div>
             
-            {appointments.length > 0 ? (
+            {loading ? (
+              <p>Loading appointments...</p>
+            ) : appointments.length > 0 ? (
               <div className="space-y-4">
                 {appointments.map((appointment) => (
                   <div key={appointment._id} className="appointment-item">

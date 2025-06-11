@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaStar, FaPhoneAlt, FaEnvelope, FaWhatsapp, FaUserMd, FaAward, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
 import './DoctorDetails.css';
 
 const DoctorDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,7 +35,19 @@ const DoctorDetails = () => {
   useEffect(() => {
     const fetchDoctorDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/doctors/${id}`);
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        // Add authorization header if user is logged in
+        if (user?.token) {
+          headers['Authorization'] = `Bearer ${user.token}`;
+        }
+
+        const response = await fetch(`http://localhost:5000/api/doctors/${id}`, {
+          headers
+        });
+        
         if (!response.ok) {
           throw new Error('Failed to fetch doctor details');
         }
@@ -47,7 +61,7 @@ const DoctorDetails = () => {
     };
 
     fetchDoctorDetails();
-  }, [id]);
+  }, [id, user]);
 
   if (loading) {
     return (
@@ -80,9 +94,40 @@ const DoctorDetails = () => {
     setBooking({ ...booking, time: slot });
   };
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
-    setBookingSuccess(true);
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify({
+          doctorId: doctor._id,
+          date: booking.date,
+          time: booking.time,
+          purpose: 'Regular Checkup'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to book appointment');
+      }
+
+      setBookingSuccess(true);
+      setTimeout(() => {
+        navigate('/patient/appointments');
+      }, 2000);
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      alert('Failed to book appointment. Please try again.');
+    }
   };
 
   const handleReviewChange = (e) => {
@@ -190,7 +235,7 @@ const DoctorDetails = () => {
         </div>
 
         {/* Book Appointment Section*/}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <span className="bg-sky-100 text-sky-600 p-2 rounded-full">
               <FaUserMd className="text-lg" />
@@ -199,30 +244,10 @@ const DoctorDetails = () => {
           </h2>
           {bookingSuccess ? (
             <div className="bg-green-50 text-green-600 rounded-lg p-4 text-center font-semibold">
-              Appointment booked successfully!
+              Appointment booked successfully! Redirecting to appointments...
             </div>
           ) : (
             <form onSubmit={handleBookingSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your Name"
-                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
-                  value={booking.name}
-                  onChange={handleBookingChange}
-                  required
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Your Email"
-                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
-                  value={booking.email}
-                  onChange={handleBookingChange}
-                  required
-                />
-              </div>
               <input
                 type="date"
                 name="date"
@@ -230,6 +255,7 @@ const DoctorDetails = () => {
                 value={booking.date}
                 onChange={handleBookingChange}
                 required
+                min={new Date().toISOString().split('T')[0]}
               />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Select Time Slot:</label>
@@ -252,9 +278,9 @@ const DoctorDetails = () => {
               <button
                 type="submit"
                 className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50"
-                disabled={!booking.time}
+                disabled={!booking.time || !booking.date}
               >
-                Confirm Booking
+                {user ? 'Book Appointment' : 'Login to Book Appointment'}
               </button>
             </form>
           )}

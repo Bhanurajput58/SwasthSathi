@@ -1,0 +1,921 @@
+* {
+  box-sizing: border-box;
+}
+
+.patient-profile-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.profile-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 2rem;
+  padding: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  margin-bottom: 2rem;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+  background-size: 300% 100%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.back-button {
+  position: absolute;
+  top: 0.5rem;
+  left: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25em 0.25rem;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  z-index: 10;
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+}
+
+.back-button:active {
+  transform: translateY(0);
+}
+
+.profile-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.profile-avatar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.default-avatar {
+  width: 70px;
+  height: 70px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  gap: 0.5rem;
+}
+
+.avatar-overlay span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 0 1rem;
+  margin-top: 0.5rem;
+}
+
+.profile-avatar:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.profile-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.profile-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.profile-email {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.badge.blood-group {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.badge.age {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.action-btn:hover::before {
+  left: 100%;
+}
+
+.edit-btn {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.cancel-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+}
+
+.profile-navigation {
+  margin-bottom: 2rem;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  border-radius: 1.5rem;
+  backdrop-filter: blur(10px);
+  overflow-x: auto;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  white-space: nowrap;
+  position: relative;
+}
+
+.nav-tab:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tab-icon {
+  font-size: 1.1rem;
+}
+
+.tab-label {
+  font-size: 0.95rem;
+}
+
+.profile-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 2rem;
+  padding: 3rem;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tab-content {
+  animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.emergency-banner,
+.medical-banner,
+.insurance-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.emergency-banner {
+  background: linear-gradient(135deg, #fef3c7, #fde047);
+  color: #92400e;
+  border-left: 4px solid #f59e0b;
+}
+
+.medical-banner {
+  background: linear-gradient(135deg, #dbeafe, #93c5fd);
+  color: #1e40af;
+  border-left: 4px solid #3b82f6;
+}
+
+.insurance-banner {
+  background: linear-gradient(135deg, #d1fae5, #6ee7b7);
+  color: #065f46;
+  border-left: 4px solid #10b981;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.field-icon {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.modern-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  font-family: inherit;
+}
+
+.modern-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.modern-textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.profile-value {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-radius: 1rem;
+  border: 2px solid #e2e8f0;
+  position: relative;
+}
+
+.value-text {
+  color: #374151;
+  font-weight: 500;
+}
+
+.profile-value:empty::before {
+  content: 'Not specified';
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.lifestyle-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
+}
+
+.lifestyle-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lifestyle-checkboxes {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.lifestyle-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  min-width: 200px;
+  position: relative;
+}
+
+.lifestyle-checkbox:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+.lifestyle-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  position: relative;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.lifestyle-checkbox input[type="checkbox"]:checked + .checkbox-custom {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-color: #3b82f6;
+}
+
+.lifestyle-checkbox input[type="checkbox"]:checked + .checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.lifestyle-icon {
+  color: #6b7280;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+ }
+ 
+ .lifestyle-checkbox:hover .lifestyle-icon {
+  color: #3b82f6;
+ }
+ 
+ .lifestyle-checkbox input[type="checkbox"]:checked ~ .lifestyle-icon {
+  color: #3b82f6;
+ }
+ 
+ /* Success Message */
+ .success-message {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 1.5rem 2rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  z-index: 1000;
+  animation: slideInBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+ }
+ 
+ @keyframes slideInBounce {
+  0% {
+    transform: translateX(100%) scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-10%) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+ }
+ 
+ .modern-input:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+ }
+ 
+ .action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+ }
+ 
+ .profile-field:hover .field-icon {
+  color: #3b82f6;
+  transform: scale(1.1);
+  transition: all 0.3s ease;
+ }
+ 
+ .profile-value:hover {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  border-color: #cbd5e1;
+ }
+ 
+ /* Responsive Design */
+ @media (max-width: 1200px) {
+  .patient-profile-container {
+    padding: 1.5rem;
+  }
+  
+  .profile-header {
+    padding: 2rem;
+    gap: 2rem;
+  }
+  
+  .profile-name {
+    font-size: 2rem;
+  }
+ }
+ 
+ @media (max-width: 768px) {
+  .patient-profile-container {
+    padding: 1rem;
+  }
+ 
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
+  }
+ 
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+  }
+ 
+  .default-avatar {
+    width: 60px;
+    height: 60px;
+  }
+ 
+  .profile-name {
+    font-size: 1.75rem;
+  }
+ 
+  .profile-actions {
+    width: 100%;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+ 
+  .action-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
+  }
+ 
+  .nav-tabs {
+    padding: 0.25rem;
+    gap: 0.25rem;
+  }
+ 
+  .nav-tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+ 
+  .tab-label {
+    display: none;
+  }
+ 
+  .profile-content {
+    padding: 2rem 1.5rem;
+  }
+ 
+  .fields-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+ 
+  .lifestyle-checkboxes {
+    flex-direction: column;
+    gap: 1rem;
+  }
+ 
+  .lifestyle-checkbox {
+    min-width: unset;
+    width: 100%;
+  }
+ 
+  .success-message {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+  }
+ 
+  .back-button {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+ }
+ 
+ @media (max-width: 480px) {
+  .profile-badges {
+    justify-content: center;
+  }
+ 
+  .badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+ 
+  .emergency-banner,
+  .medical-banner,
+  .insurance-banner {
+    padding: 1rem;
+    font-size: 1rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+ }
+ 
+ @media (prefers-color-scheme: dark) {
+  .profile-header,
+  .profile-content {
+    background: rgba(31, 41, 55, 0.95);
+    color: #f3f4f6;
+  }
+ 
+  .profile-name {
+    color: #f3f4f6;
+  }
+ 
+  .profile-email {
+    color: #d1d5db;
+  }
+ 
+  .field-label {
+    color: #e5e7eb;
+  }
+ 
+  .modern-input {
+    background: rgba(55, 65, 81, 0.8);
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+ 
+  .modern-input:focus {
+    border-color: #60a5fa;
+    background: rgba(55, 65, 81, 1);
+  }
+ 
+  .profile-value {
+    background: linear-gradient(135deg, rgba(55, 65, 81, 0.8), rgba(75, 85, 99, 0.6));
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+ 
+  .nav-tab {
+    color: rgba(243, 244, 246, 0.7);
+  }
+ 
+  .nav-tab:hover,
+  .nav-tab.active {
+    color: #f3f4f6;
+  }
+ }
+ 
+ @media print {
+  .patient-profile-container {
+    background: white;
+    padding: 1rem;
+  }
+ 
+  .profile-header,
+  .profile-content {
+    background: white;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+ 
+  .profile-actions,
+  .nav-tabs,
+  .avatar-overlay {
+    display: none;
+  }
+ 
+  .modern-input {
+    border: none;
+    background: transparent;
+    padding: 0.5rem 0;
+  }
+ 
+  .profile-value {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0;
+  }
+ }
+ 
+ .action-btn:focus-visible,
+ .modern-input:focus-visible,
+ .nav-tab:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+ }
+ 
+ .lifestyle-checkbox:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+ }
+ 
+ /* Custom Scrollbar */
+ .nav-tabs::-webkit-scrollbar {
+  height: 4px;
+ }
+ 
+ .nav-tabs::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+ }
+ 
+ .nav-tabs::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+ }
+ 
+ .nav-tabs::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+ }
+ 
+ .profile-field {
+  animation: fadeInField 0.3s ease forwards;
+ }
+ 
+ @keyframes fadeInField {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+ }
+ 
+ .profile-field:nth-child(1) { animation-delay: 0.05s; }
+ .profile-field:nth-child(2) { animation-delay: 0.1s; }
+ .profile-field:nth-child(3) { animation-delay: 0.15s; }
+ .profile-field:nth-child(4) { animation-delay: 0.2s; }
+ .profile-field:nth-child(5) { animation-delay: 0.25s; }
+ .profile-field:nth-child(6) { animation-delay: 0.3s; }
+ .profile-field:nth-child(7) { animation-delay: 0.35s; }
+ 
+ .skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+ }
+ 
+ @keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+ }
+
+.image-url-input {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+.input-group .modern-input {
+  padding-left: 2.5rem;
+}
+
+.url-input-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.url-input-actions .action-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}

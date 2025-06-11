@@ -148,6 +148,15 @@ const AdminDashboard = () => {
             </button>
           </div>
           <div className="action-card">
+            <h2 className="action-card h2">Manage Patients</h2>
+            <button 
+              className="action-button violet"
+              onClick={() => navigate('/admin/patients')}
+            >
+              View All Patients
+            </button>
+          </div>
+          <div className="action-card">
             <h2 className="action-card h2">System Settings</h2>
             <button 
               className="action-button rose"

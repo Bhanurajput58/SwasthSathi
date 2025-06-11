@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import './Admin.css';
 
 const ManageDoctors = () => {
@@ -92,10 +93,11 @@ const ManageDoctors = () => {
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h1>Manage Doctors</h1>
-        <button className="action-button cyan" onClick={() => navigate('/admin')}>
-          Back to Dashboard
+        <button className="back-to-dashboard" onClick={() => navigate('/admin')}>
+          <FaArrowLeft />
+          Back
         </button>
+        <h1>Manage Doctors</h1>
       </div>
 
       {error && (
@@ -115,7 +117,7 @@ const ManageDoctors = () => {
           <div key={doctor._id} className="user-card">
             <div className="doctor-avatar">
               <img 
-                src={doctor.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(doctor.name) + '&background=random'} 
+                src={doctor.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.name)}&background=random`} 
                 alt={doctor.name}
                 onError={(e) => {
                   e.target.onerror = null;
@@ -163,10 +165,31 @@ const ManageDoctors = () => {
               <button className="close-modal-btn" onClick={closeModal}>×</button>
             </div>
             <div className="modal-body">
+              <div className="doctor-profile-header">
+                <div className="doctor-avatar large">
+                  <img 
+                    src={selectedDoctor.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedDoctor.name)}&background=random`} 
+                    alt={selectedDoctor.name}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedDoctor.name)}&background=random`;
+                    }}
+                  />
+                </div>
+                <div className="doctor-profile-info">
+                  <h3>{selectedDoctor.name}</h3>
+                  <p className="specialization">{selectedDoctor.specialization}</p>
+                  <p className="status">
+                    <span className={`status-badge ${selectedDoctor.isApproved ? 'approved' : 'pending'}`}>
+                      {selectedDoctor.isApproved ? 'Approved' : 'Pending Approval'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
               <div className="doctor-details-grid">
                 <div className="detail-section">
                   <h3>Personal Information</h3>
-                  <p><strong>Name:</strong> {selectedDoctor.name}</p>
                   <p><strong>Email:</strong> {selectedDoctor.email}</p>
                   <p><strong>Phone:</strong> {selectedDoctor.phone || 'Not provided'}</p>
                   <p><strong>Joined:</strong> {new Date(selectedDoctor.createdAt).toLocaleDateString()}</p>
@@ -184,7 +207,6 @@ const ManageDoctors = () => {
                   <h3>Additional Information</h3>
                   <p><strong>Bio:</strong> {selectedDoctor.bio || 'No bio available'}</p>
                   <p><strong>About:</strong> {selectedDoctor.about || 'No additional information'}</p>
-                  <p><strong>Status:</strong> {selectedDoctor.isApproved ? 'Approved' : 'Pending'}</p>
                 </div>
               </div>
             </div>

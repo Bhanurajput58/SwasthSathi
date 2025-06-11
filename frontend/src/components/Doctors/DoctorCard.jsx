@@ -82,7 +82,7 @@ const DoctorCard = ({ doctor }) => {
           </div>
 
           <Link
-            to={`/doctors/${_id}`}
+            to={`/patient/doctors/${_id}`}
             className="mt-8 w-full bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8] text-white py-4 px-6 rounded-full flex items-center justify-center gap-2 font-bold text-[16px] shadow-lg shadow-sky-200"
           >
             View Profile
