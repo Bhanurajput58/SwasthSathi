@@ -1,30 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
-import { FaUserMd, FaStar, FaHospital, FaPhone, FaEnvelope, FaGraduationCap, FaCalendarAlt, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { FaUserMd, FaStar, FaHospital, FaPhone, FaEnvelope, FaGraduationCap, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import './DoctorProfile.css';
 
 const DoctorProfile = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log('DoctorProfile - Current user:', user);
-    console.log('DoctorProfile - Auth loading:', authLoading);
-    console.log('DoctorProfile - Doctor ID:', id);
-
     const fetchDoctorDetails = async () => {
       if (!user?.token) {
-        console.log('DoctorProfile - No token available');
         setLoading(false);
         return;
       }
 
       try {
-        console.log('DoctorProfile - Fetching doctor details with token:', user.token);
         const response = await fetch(`http://localhost:5000/api/doctors/${id}`, {
           headers: {
             'Authorization': `Bearer ${user.token}`,
@@ -36,10 +31,8 @@ const DoctorProfile = () => {
           throw new Error('Failed to fetch doctor details');
         }
         const data = await response.json();
-        console.log('DoctorProfile - Fetched doctor data:', data);
         setDoctor(data);
       } catch (error) {
-        console.error('DoctorProfile - Error fetching doctor:', error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -51,7 +44,6 @@ const DoctorProfile = () => {
 
   // Show loading state while auth is loading
   if (authLoading) {
-    console.log('DoctorProfile - Auth is loading');
     return (
       <div className="doctor-profile-container">
         <div className="loading-message">Loading...</div>
@@ -61,19 +53,16 @@ const DoctorProfile = () => {
 
   // Redirect to login if not authenticated
   if (!user) {
-    console.log('DoctorProfile - No user, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   // Redirect to home if not a patient
   if (user.role !== 'patient') {
-    console.log('DoctorProfile - User is not a patient, redirecting to home');
     return <Navigate to="/" replace />;
   }
 
   // Show loading state while fetching doctor details
   if (loading) {
-    console.log('DoctorProfile - Loading doctor details');
     return (
       <div className="doctor-profile-container">
         <div className="loading-message">Loading doctor details...</div>
@@ -83,7 +72,6 @@ const DoctorProfile = () => {
 
   // Show error state
   if (error) {
-    console.log('DoctorProfile - Error state:', error);
     return (
       <div className="doctor-profile-container">
         <div className="error-message">Error: {error}</div>
@@ -93,7 +81,6 @@ const DoctorProfile = () => {
 
   // Show not found state
   if (!doctor) {
-    console.log('DoctorProfile - No doctor found');
     return (
       <div className="doctor-profile-container">
         <div className="error-message">Doctor not found</div>
@@ -101,9 +88,17 @@ const DoctorProfile = () => {
     );
   }
 
-  console.log('DoctorProfile - Rendering doctor profile:', doctor);
   return (
     <div className="doctor-profile-container">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate('/patient/all-doctors')}
+        className="group flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md mb-4"
+      >
+        <FaArrowLeft className="transform group-hover:-translate-x-1 transition-transform" />
+        <span>Back to Doctors</span>
+      </button>
+
       <div className="profile-header">
         <div className="doctor-image">
           {doctor.photo ? (

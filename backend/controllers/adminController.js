@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Appointment = require('../models/Appointment');
+const mongoose = require('mongoose');
 
 const getAllUsers = async (req, res) => {
   try {
@@ -67,24 +68,115 @@ const getRecentAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find()
       .sort({ createdAt: -1 })
-      .limit(5)
+      .limit(5)  // Keep only 5 most recent appointments
       .populate({
         path: 'patient',
-        select: 'name email'
+        select: 'name email photo'
       })
       .populate({
         path: 'doctor',
-        select: 'name email specialization'
+        select: 'name email specialization photo'
       });
 
     if (!appointments) {
       return res.status(404).json({ message: 'No appointments found' });
     }
 
-    res.json(appointments);
+    // Format appointments for better display
+    const formattedAppointments = appointments.map(appointment => ({
+      _id: appointment._id,
+      patient: appointment.patient ? {
+        name: appointment.patient.name,
+        email: appointment.patient.email,
+        photo: appointment.patient.photo
+      } : null,
+      doctor: appointment.doctor ? {
+        name: appointment.doctor.name,
+        email: appointment.doctor.email,
+        specialization: appointment.doctor.specialization,
+        photo: appointment.doctor.photo
+      } : null,
+      date: appointment.date,
+      time: appointment.time,
+      reason: appointment.reason,
+      status: appointment.status,
+      createdAt: appointment.createdAt
+    }));
+
+    res.json(formattedAppointments);
   } catch (error) {
     console.error('Error fetching recent appointments:', error);
     res.status(500).json({ message: 'Error fetching recent appointments', error: error.message });
+  }
+};
+
+// Get all appointments with pagination and filtering
+const getAllAppointments = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const status = req.query.status;
+    const search = req.query.search;
+
+    // Build query
+    const query = {};
+    if (status) {
+      query.status = status;
+    }
+    if (search) {
+      query.$or = [
+        { 'patient.name': { $regex: search, $options: 'i' } },
+        { 'doctor.name': { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Get total count for pagination
+    const total = await Appointment.countDocuments(query);
+
+    const appointments = await Appointment.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate({
+        path: 'patient',
+        select: 'name email photo phone'
+      })
+      .populate({
+        path: 'doctor',
+        select: 'name email specialization photo'
+      });
+
+    // Format appointments
+    const formattedAppointments = appointments.map(appointment => ({
+      _id: appointment._id,
+      patient: appointment.patient ? {
+        name: appointment.patient.name,
+        email: appointment.patient.email,
+        photo: appointment.patient.photo,
+        phone: appointment.patient.phone
+      } : null,
+      doctor: appointment.doctor ? {
+        name: appointment.doctor.name,
+        email: appointment.doctor.email,
+        specialization: appointment.doctor.specialization,
+        photo: appointment.doctor.photo
+      } : null,
+      date: appointment.date,
+      time: appointment.time,
+      reason: appointment.reason,
+      status: appointment.status,
+      createdAt: appointment.createdAt
+    }));
+
+    res.json({
+      appointments: formattedAppointments,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalAppointments: total
+    });
+  } catch (error) {
+    console.error('Error fetching all appointments:', error);
+    res.status(500).json({ message: 'Error fetching appointments', error: error.message });
   }
 };
 
@@ -180,10 +272,14 @@ const assignDoctorToPatient = async (req, res) => {
   try {
     const { patientId, doctorId } = req.body;
 
+    if (!patientId || !doctorId) {
+      return res.status(400).json({ message: 'Patient ID and Doctor ID are required' });
+    }
+
     // Verify both patient and doctor exist
     const [patient, doctor] = await Promise.all([
       User.findOne({ _id: patientId, role: 'patient' }),
-      User.findOne({ _id: doctorId, role: 'doctor' })
+      User.findOne({ _id: doctorId, role: 'doctor', isApproved: true })
     ]);
 
     if (!patient) {
@@ -191,17 +287,31 @@ const assignDoctorToPatient = async (req, res) => {
     }
 
     if (!doctor) {
-      return res.status(404).json({ message: 'Doctor not found' });
+      return res.status(404).json({ message: 'Doctor not found or not approved' });
     }
 
-    const appointment = await Appointment.create({
+    // Find the most recent appointment that needs a doctor
+    const appointment = await Appointment.findOne({
       patient: patientId,
-      doctor: doctorId,
-      date: new Date(),
-      time: '09:00',
-      reason: 'Initial consultation',
-      status: 'confirmed'
-    });
+      status: 'needs_doctor'
+    }).sort({ createdAt: -1 });
+
+    if (!appointment) {
+      return res.status(404).json({ 
+        message: 'No pending appointment found for this patient' 
+      });
+    }
+
+    // Update the appointment with the assigned doctor
+    appointment.doctor = doctorId;
+    appointment.status = 'confirmed';
+    await appointment.save();
+
+    // Update doctor's patient count
+    await User.findByIdAndUpdate(
+      doctorId,
+      { $inc: { patientCount: 1 } }
+    );
 
     res.status(200).json({
       message: 'Doctor assigned successfully',
@@ -209,7 +319,10 @@ const assignDoctorToPatient = async (req, res) => {
     });
   } catch (error) {
     console.error('Error assigning doctor:', error);
-    res.status(500).json({ message: 'Error assigning doctor', error: error.message });
+    res.status(500).json({ 
+      message: 'Error assigning doctor', 
+      error: error.message 
+    });
   }
 };
 
@@ -284,6 +397,7 @@ module.exports = {
   getAdminStats,
   getRecentUsers,
   getRecentAppointments,
+  getAllAppointments,
   getAllUsers,
   updateUser,
   deleteUser,

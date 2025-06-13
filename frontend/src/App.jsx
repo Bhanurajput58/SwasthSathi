@@ -8,8 +8,8 @@ import Signup from './pages/Signup';
 import Contact from './pages/Contact';
 import Doctors from './pages/Doctors/Doctors';
 import AllDoctors from './pages/Doctors/AllDoctors';
-import DoctorDetails from './pages/Doctors/DoctorDetails';
 import DoctorProfile from './pages/Doctors/DoctorProfile';
+import BookAppointment from './pages/Doctors/BookAppointment';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,6 +21,7 @@ import ManageUsers from './pages/Admin/ManageUsers';
 import ManageDoctors from './pages/Admin/ManageDoctors';
 import SystemSettings from './pages/Admin/SystemSettings';
 import ManagePatients from './pages/Admin/ManagePatients';
+import ManageAppointments from './pages/Admin/ManageAppointments';
 import PatientProfile from './pages/Patient/PatientProfile';
 
 function App() {
@@ -32,7 +33,6 @@ function App() {
           <Route index element={<Home />} />
           <Route path="home" element={<Home />} />
           <Route path="doctors" element={<Doctors />} />
-          <Route path="doctors/:id" element={<DoctorDetails />} />
           <Route path="services" element={<Services />} />
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
@@ -74,6 +74,7 @@ function App() {
                 <Route path="doctors" element={<ManageDoctors />} />
                 <Route path="settings" element={<SystemSettings />} />
                 <Route path="patients" element={<ManagePatients />} />
+                <Route path="appointments" element={<ManageAppointments />} />
               </Routes>
             </ProtectedRoute>
           }
@@ -87,6 +88,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/book-appointment/:id" element={<BookAppointment />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

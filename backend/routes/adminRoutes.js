@@ -8,7 +8,8 @@ const {
   rejectDoctor,
   assignDoctorToPatient,
   getPatientDoctor,
-  getPatientDetails
+  getPatientDetails,
+  getAllAppointments
 } = require('../controllers/adminController');
 
 // Apply auth middleware to all routes
@@ -25,6 +26,9 @@ router.get('/patient/:patientId/doctor', getPatientDoctor);
 router.get('/doctors', getDoctors);
 router.put('/doctors/:id/approve', approveDoctor);
 router.put('/doctors/:id/reject', rejectDoctor);
+
+// New route for all appointments
+router.get('/appointments', getAllAppointments);
 
 // Error handling middleware
 router.use((err, req, res, next) => {

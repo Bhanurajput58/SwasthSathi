@@ -51,7 +51,7 @@ const AllDoctors = () => {
     fetchDoctors();
   }, [user]);
 
-  
+  // Show loading state while auth is loading
   if (authLoading) {
     return (
       <div className="all-doctors-container">
@@ -65,6 +65,7 @@ const AllDoctors = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // Redirect to home if not a patient
   if (user.role !== 'patient') {
     return <Navigate to="/" replace />;
   }
@@ -169,7 +170,7 @@ const AllDoctors = () => {
                 <Link to={`/patient/doctors/${doctor._id}`} className="view-profile-btn">
                   View Profile
                 </Link>
-                <Link to={`/doctors/${doctor._id}`} className="book-appointment-btn">
+                <Link to={`/book-appointment/${doctor._id}`} className="book-appointment-btn">
                   Book Appointment
                 </Link>
               </div>

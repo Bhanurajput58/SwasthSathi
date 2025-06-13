@@ -66,7 +66,7 @@ const ManagePatients = () => {
         const patientsData = await patientsResponse.json();
         setPatients(patientsData);
 
-        // Fetch doctors
+        // Fetch approved doctors with their details
         const doctorsResponse = await fetch('http://localhost:5000/api/admin/doctors', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -78,7 +78,13 @@ const ManagePatients = () => {
         }
 
         const doctorsData = await doctorsResponse.json();
-        setDoctors(doctorsData);
+        // Filter only approved doctors with complete information
+        const approvedDoctors = doctorsData.filter(doctor => 
+          doctor.isApproved && 
+          doctor.specialization && 
+          doctor.experience
+        );
+        setDoctors(approvedDoctors);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError(error.message);
@@ -181,12 +187,16 @@ const ManagePatients = () => {
         })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to assign doctor');
+        throw new Error(data.message || 'Failed to assign doctor');
       }
 
-      // Refreshes patientlist
+      // Show success message
+      alert('Doctor assigned successfully!');
+
+      // Refresh patient list
       const patientsResponse = await fetch('http://localhost:5000/api/admin/patients', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -198,7 +208,7 @@ const ManagePatients = () => {
         setPatients(updatedPatients);
       }
 
-      // Close  modal
+      // Close modal
       handleCloseAssignModal();
     } catch (error) {
       console.error('Error assigning doctor:', error);
@@ -414,12 +424,10 @@ const ManagePatients = () => {
                     className="doctor-select"
                   >
                     <option value="">Select a doctor</option>
-                    {doctors
-                      .filter(doctor => doctor.isApproved)
-                      .map((doctor) => (
-                        <option key={doctor._id} value={doctor._id}>
-                          Dr. {doctor.name} - {doctor.specialization}
-                        </option>
+                    {doctors.map((doctor) => (
+                      <option key={doctor._id} value={doctor._id}>
+                         {doctor.name} - {doctor.specialization} ({doctor.experience} years exp.)
+                      </option>
                     ))}
                   </select>
                   {assignmentError && (

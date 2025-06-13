@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { FaStar, FaPhoneAlt, FaEnvelope, FaWhatsapp, FaUserMd, FaAward, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
-import './DoctorDetails.css';
+import './BookAppointment.css';
 
-const DoctorDetails = () => {
+const BookAppointment = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [booking, setBooking] = useState({ name: '', email: '', date: '', time: '' });
+  const [booking, setBooking] = useState({
+    date: '',
+    time: '',
+    reason: '',
+    symptoms: '',
+    previousHistory: ''
+  });
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [newReview, setNewReview] = useState({ name: '', rating: 5, comment: '' });
   const [localReviews, setLocalReviews] = useState([]);
@@ -34,18 +40,17 @@ const DoctorDetails = () => {
 
   useEffect(() => {
     const fetchDoctorDetails = async () => {
-      try {
-        const headers = {
-          'Content-Type': 'application/json'
-        };
-        
-        // Add authorization header if user is logged in
-        if (user?.token) {
-          headers['Authorization'] = `Bearer ${user.token}`;
-        }
+      if (!user?.token) {
+        setLoading(false);
+        return;
+      }
 
+      try {
         const response = await fetch(`http://localhost:5000/api/doctors/${id}`, {
-          headers
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json'
+          }
         });
         
         if (!response.ok) {
@@ -63,12 +68,20 @@ const DoctorDetails = () => {
     fetchDoctorDetails();
   }, [id, user]);
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
       </div>
     );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user.role !== 'patient') {
+    return <Navigate to="/" replace />;
   }
 
   if (error || !doctor) {
@@ -112,12 +125,15 @@ const DoctorDetails = () => {
           doctorId: doctor._id,
           date: booking.date,
           time: booking.time,
-          purpose: 'Regular Checkup'
+          reason: booking.reason,
+          symptoms: booking.symptoms,
+          previousHistory: booking.previousHistory
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to book appointment');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to book appointment');
       }
 
       setBookingSuccess(true);
@@ -126,7 +142,7 @@ const DoctorDetails = () => {
       }, 2000);
     } catch (error) {
       console.error('Error booking appointment:', error);
-      alert('Failed to book appointment. Please try again.');
+      alert(error.message || 'Failed to book appointment. Please try again.');
     }
   };
 
@@ -145,11 +161,11 @@ const DoctorDetails = () => {
       <div className="max-w-5xl mx-auto">
         {/* Back Button */}
         <button
-          onClick={() => navigate('/doctors')}
+          onClick={() => navigate('/patient/all-doctors')}
           className="group flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md mb-4"
         >
           <FaArrowLeft className="transform group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Doctors</span>
+          <span>Back</span>
         </button>
 
         {/* Main Content */}
@@ -248,15 +264,19 @@ const DoctorDetails = () => {
             </div>
           ) : (
             <form onSubmit={handleBookingSubmit} className="space-y-4">
-              <input
-                type="date"
-                name="date"
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
-                value={booking.date}
-                onChange={handleBookingChange}
-                required
-                min={new Date().toISOString().split('T')[0]}
-              />
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Select Date:</label>
+                <input
+                  type="date"
+                  name="date"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
+                  value={booking.date}
+                  onChange={handleBookingChange}
+                  required
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Select Time Slot:</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -264,10 +284,11 @@ const DoctorDetails = () => {
                     <button
                       type="button"
                       key={slot}
-                      className={`px-3 py-2 rounded-lg border transition-all duration-200 ${booking.time === slot
-                        ? 'bg-sky-500 text-white border-sky-500'
-                        : 'bg-white text-slate-700 border-slate-200 hover:bg-sky-50 hover:border-sky-200'
-                        }`}
+                      className={`px-3 py-2 rounded-lg border transition-all duration-200 ${
+                        booking.time === slot
+                          ? 'bg-sky-500 text-white border-sky-500'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-sky-50 hover:border-sky-200'
+                      }`}
                       onClick={() => handleTimeSelect(slot)}
                     >
                       {slot}
@@ -275,12 +296,49 @@ const DoctorDetails = () => {
                   ))}
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Reason for Visit:</label>
+                <input
+                  type="text"
+                  name="reason"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
+                  value={booking.reason}
+                  onChange={handleBookingChange}
+                  required
+                  placeholder="e.g., Regular Checkup, Consultation"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Symptoms (if any):</label>
+                <textarea
+                  name="symptoms"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
+                  value={booking.symptoms}
+                  onChange={handleBookingChange}
+                  rows="3"
+                  placeholder="Please describe your symptoms..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Previous Medical History:</label>
+                <textarea
+                  name="previousHistory"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
+                  value={booking.previousHistory}
+                  onChange={handleBookingChange}
+                  rows="3"
+                  placeholder="Any relevant medical history..."
+                />
+              </div>
+
               <button
                 type="submit"
-                className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50"
-                disabled={!booking.time || !booking.date}
+                className="w-full bg-gradient-to-r from-sky-500 to-sky-600 text-white py-3 rounded-lg font-semibold hover:from-sky-600 hover:to-sky-700 transition-all duration-300 shadow-lg shadow-sky-200 hover:shadow-sky-300"
               >
-                {user ? 'Book Appointment' : 'Login to Book Appointment'}
+                Book Appointment
               </button>
             </form>
           )}
@@ -364,4 +422,4 @@ const DoctorDetails = () => {
   );
 };
 
-export default DoctorDetails;
+export default BookAppointment;

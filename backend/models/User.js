@@ -123,6 +123,11 @@ const userSchema = new mongoose.Schema({
   isApproved: {
     type: Boolean,
     default: false
+  },
+  patientCount: {
+    type: Number,
+    default: 0,
+    min: 0
   }
 }, {
   timestamps: true

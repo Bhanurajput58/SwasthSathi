@@ -205,9 +205,19 @@
   margin-top: 0.15rem;
 }
 
-.view-profile-btn,
+.view-profile-btn{
+  padding: 0.25rem 0.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
 .book-appointment-btn {
   padding: 0.25rem 0.5rem;
+  padding-top: 17px;
   border-radius: 50px;
   font-weight: 600;
   text-decoration: none;
