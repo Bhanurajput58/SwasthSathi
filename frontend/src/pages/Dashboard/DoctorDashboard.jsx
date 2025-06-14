@@ -10,6 +10,7 @@ const DoctorDashboard = () => {
   const [patients, setPatients] = useState([]);
   const [todayAppointments, setTodayAppointments] = useState([]);
   const [pendingReportsCount, setPendingReportsCount] = useState(0);
+  const [medicalRecords, setMedicalRecords] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -160,6 +161,32 @@ const DoctorDashboard = () => {
     }
   };
 
+  // Function to fetch medical records
+  const fetchMedicalRecords = async () => {
+    try {
+      const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
+      
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const response = await fetch(`http://localhost:5000/api/medical-records/doctor`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch medical records');
+      }
+
+      const records = await response.json();
+      setMedicalRecords(records.slice(0, 5)); // Get only the 5 most recent records
+    } catch (error) {
+      console.error('Error fetching medical records:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchDoctorData = async () => {
       try {
@@ -174,6 +201,8 @@ const DoctorDashboard = () => {
 
         // Fetch doctor profile 
         await fetchDoctorProfile();
+        // Fetch medical records
+        await fetchMedicalRecords();
 
         // Fetch appointments
         try {
@@ -533,6 +562,41 @@ const DoctorDashboard = () => {
                 </div>
               ) : (
                 <p className="no-patients-text">No recent patients</p>
+              )}
+            </div>
+
+            {/* Recent Medical Records */}
+            <div className="recent-medical-records-section">
+              <h2 className="recent-medical-records-section h2">Recent Medical Records</h2>
+              {medicalRecords.length > 0 ? (
+                <div className="medical-records-list">
+                  {medicalRecords.map((record) => (
+                    <div key={record._id} className="medical-record-item">
+                      <div className="medical-record-header">
+                        <h3>{record.patient?.name}</h3>
+                        <span className={`status-badge ${record.status}`}>
+                          {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                        </span>
+                      </div>
+                      <div className="medical-record-content">
+                        <p className="diagnosis"><strong>Diagnosis:</strong> {record.diagnosis}</p>
+                        <p className="date">Date: {new Date(record.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <div className="medical-record-actions">
+                        <button className="view-details-button">
+                          View Details
+                        </button>
+                        {record.status === 'pending' && (
+                          <button className="complete-button">
+                            Mark as Complete
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="no-records-text">No recent medical records</p>
               )}
             </div>
           </>

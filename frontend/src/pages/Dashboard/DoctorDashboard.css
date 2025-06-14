@@ -927,3 +927,115 @@
     opacity: 1;
   }
 }
+
+/* Recent Medical Records Section */
+.recent-medical-records-section {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.medical-records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.medical-record-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #e9ecef;
+}
+
+.medical-record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.medical-record-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.reviewed {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.medical-record-content {
+  margin: 10px 0;
+}
+
+.medical-record-content p {
+  margin: 5px 0;
+  color: #6c757d;
+}
+
+.medical-record-content .diagnosis {
+  color: #495057;
+}
+
+.medical-record-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.view-details-button,
+.complete-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.view-details-button {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.view-details-button:hover {
+  background-color: #dee2e6;
+}
+
+.complete-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.complete-button:hover {
+  background-color: #218838;
+}
+
+.no-records-text {
+  text-align: center;
+  color: #6c757d;
+  padding: 20px;
+  font-style: italic;
+}
