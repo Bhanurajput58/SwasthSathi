@@ -10,6 +10,7 @@ const PatientDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [patientData, setPatientData] = useState(null);
 
   const handleLogout = () => {
     logout();
@@ -27,16 +28,19 @@ const PatientDashboard = () => {
           'Authorization': `Bearer ${token}`,
         };
 
-        const [appointmentsRes, recordsRes] = await Promise.all([
+        const [appointmentsRes, recordsRes, patientRes] = await Promise.all([
           fetch('http://localhost:5000/api/appointments/patient', { headers }),
-          fetch('http://localhost:5000/api/medical-records/patient', { headers })
+          fetch('http://localhost:5000/api/medical-records/patient', { headers }),
+          fetch(`http://localhost:5000/api/patients/${user._id}`, { headers })
         ]);
 
         const appointmentsData = await appointmentsRes.json();
         const recordsData = await recordsRes.json();
+        const patientData = await patientRes.json();
 
         setAppointments(appointmentsData);
         setMedicalRecords(recordsData);
+        setPatientData(patientData);
       } catch (error) {
         console.error('Error fetching patient data:', error);
       } finally {
@@ -68,7 +72,15 @@ const PatientDashboard = () => {
         <div className="header-section">
           <div className="header-content">
             <div className="header-icon-container">
-              <User className="header-icon" />
+              {patientData?.photo ? (
+                <img 
+                  src={patientData.photo} 
+                  alt={patientData.name} 
+                  className="patient-profile-image"
+                />
+              ) : (
+                <User className="header-icon" />
+              )}
             </div>
             <div className="flex-1">
               <h1 className="welcome-title">Welcome, {user?.name}!</h1>

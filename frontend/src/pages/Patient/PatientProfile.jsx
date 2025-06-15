@@ -19,6 +19,9 @@ const PatientProfile = () => {
   const fileInputRef = useRef(null);
   const [showImageUrlInput, setShowImageUrlInput] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
+  const [imageError, setImageError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState({
     // Personal Information
     name: '',
@@ -137,56 +140,85 @@ const PatientProfile = () => {
     }
   };
 
+  const validateImageUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleImageUrlChange = (e) => {
+    const url = e.target.value;
+    setImageUrl(url);
+    setImageError('');
+
+    if (url) {
+      if (!validateImageUrl(url)) {
+        setImageError('Please enter a valid URL');
+        setImagePreview('');
+        return;
+      }
+
+      // Create a temporary image to check if it loads
+      const img = new Image();
+      img.onload = () => {
+        setImagePreview(url);
+        setImageError('');
+      };
+      img.onerror = () => {
+        setImageError('Image could not be loaded. Please check the URL.');
+        setImagePreview('');
+      };
+      img.src = url;
+    } else {
+      setImagePreview('');
+    }
+  };
+
   const handleImageUrlSubmit = async () => {
     if (!imageUrl) {
-      alert('Please enter an image URL');
+      setImageError('Please enter an image URL');
       return;
     }
 
+    if (!validateImageUrl(imageUrl)) {
+      setImageError('Please enter a valid URL');
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      // Basic URL validation
-      if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-        alert('Please enter a valid URL starting with http:// or https://');
-        return;
-      }
+      // Update the profile data with the new image URL
+      const updatedProfileData = {
+        ...profileData,
+        photo: imageUrl
+      };
 
-      // Check if URL is an image
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-      const hasValidExtension = imageExtensions.some(ext => 
-        imageUrl.toLowerCase().endsWith(ext)
-      );
-
-      if (!hasValidExtension) {
-        alert('Please enter a valid image URL (supported formats: jpg, jpeg, png, gif, webp)');
-        return;
-      }
-
-      const response = await fetch(`http://localhost:5000/api/patients/${user._id}/update-photo`, {
+      const response = await fetch(`http://localhost:5000/api/patients/${user._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token}`
         },
-        body: JSON.stringify({ photoUrl: imageUrl })
+        body: JSON.stringify(updatedProfileData)
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile photo');
+        throw new Error('Failed to update profile image');
       }
 
-      const data = await response.json();
-      setProfileData(prev => ({
-        ...prev,
-        photo: data.photoUrl
-      }));
-
+      setProfileData(updatedProfileData);
       setShowImageUrlInput(false);
       setImageUrl('');
+      setImagePreview('');
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
     } catch (error) {
-      console.error('Error updating profile photo:', error);
-      alert('Failed to update profile photo. Please make sure the URL is valid and accessible.');
+      setImageError(error.message || 'Failed to update profile image');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -426,19 +458,59 @@ const PatientProfile = () => {
                 <input
                   type="url"
                   value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="Enter image URL"
-                  className="modern-input"
+                  onChange={handleImageUrlChange}
+                  placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
+                  className={`modern-input ${imageError ? 'error' : ''}`}
                 />
               </div>
+              
+              {imageError && (
+                <div className="error-message">
+                  <FaExclamationTriangle /> {imageError}
+                </div>
+              )}
+
+              {imagePreview && (
+                <div className="image-preview-container">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="image-preview"
+                    onError={() => {
+                      setImageError('Failed to load image preview');
+                      setImagePreview('');
+                    }}
+                  />
+                </div>
+              )}
+
               <div className="url-input-actions">
-                <button className="action-btn save-btn" onClick={handleImageUrlSubmit}>
-                  <FaSave /> Save
+                <button 
+                  className="action-btn save-btn" 
+                  onClick={handleImageUrlSubmit}
+                  disabled={isLoading || !!imageError}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="loading-spinner"></span>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <FaSave /> Save
+                    </>
+                  )}
                 </button>
-                <button className="action-btn cancel-btn" onClick={() => {
-                  setShowImageUrlInput(false);
-                  setImageUrl('');
-                }}>
+                <button 
+                  className="action-btn cancel-btn" 
+                  onClick={() => {
+                    setShowImageUrlInput(false);
+                    setImageUrl('');
+                    setImagePreview('');
+                    setImageError('');
+                  }}
+                  disabled={isLoading}
+                >
                   <FaTimes /> Cancel
                 </button>
               </div>
