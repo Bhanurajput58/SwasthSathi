@@ -39,33 +39,60 @@ const BookAppointment = () => {
   };
 
   useEffect(() => {
-    const fetchDoctorDetails = async () => {
+    const fetchData = async () => {
       if (!user?.token) {
         setLoading(false);
         return;
       }
 
       try {
-        const response = await fetch(`http://localhost:5000/api/doctors/${id}`, {
+        // Fetch doctor details
+        console.log('Fetching doctor details for ID:', id);
+        const doctorResponse = await fetch(`http://localhost:5000/api/doctors/${id}`, {
           headers: {
             'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
           }
         });
         
-        if (!response.ok) {
+        if (!doctorResponse.ok) {
           throw new Error('Failed to fetch doctor details');
         }
-        const data = await response.json();
-        setDoctor(data);
+        const doctorData = await doctorResponse.json();
+        console.log('Raw doctor data:', doctorData);
+        
+        // Ensure we have the correct doctor ID
+        if (!doctorData._id) {
+          throw new Error('Invalid doctor data: missing ID');
+        }
+        
+        setDoctor(doctorData);
+        console.log('Doctor state set with:', doctorData);
+
+        // Fetch patient details
+        console.log('Fetching patient details for ID:', user._id);
+        const patientResponse = await fetch(`http://localhost:5000/api/patients/${user._id}`, {
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!patientResponse.ok) {
+          throw new Error('Failed to fetch patient details');
+        }
+        const patientData = await patientResponse.json();
+        console.log('Patient data:', patientData);
+
+        setLoading(false);
       } catch (error) {
+        console.error('Error fetching data:', error);
         setError(error.message);
-      } finally {
         setLoading(false);
       }
     };
 
-    fetchDoctorDetails();
+    fetchData();
   }, [id, user]);
 
   if (authLoading) {
@@ -84,10 +111,19 @@ const BookAppointment = () => {
     return <Navigate to="/" replace />;
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
+      </div>
+    );
+  }
+
   if (error || !doctor) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100">
-        <h2 className="text-3xl font-bold text-slate-800 mb-6">Doctor not found</h2>
+        <h2 className="text-3xl font-bold text-slate-800 mb-6">Error loading data</h2>
+        <p className="text-red-500 mb-4">{error || 'Doctor not found'}</p>
         <button
           onClick={() => navigate('/doctors')}
           className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-sky-500 to-sky-600 text-white rounded-xl font-semibold hover:from-sky-600 hover:to-sky-700 transition-all duration-300 shadow-lg shadow-sky-200 hover:shadow-sky-300"
@@ -107,6 +143,37 @@ const BookAppointment = () => {
     setBooking({ ...booking, time: slot });
   };
 
+  const validateBookingData = () => {
+    if (!booking.date) {
+      throw new Error('Please select a date');
+    }
+
+    if (!booking.time) {
+      throw new Error('Please select a time slot');
+    }
+
+    if (!booking.reason.trim()) {
+      throw new Error('Please provide a reason for visit');
+    }
+
+    if (!booking.symptoms.trim()) {
+      throw new Error('Please describe your symptoms');
+    }
+
+    if (!booking.previousHistory.trim()) {
+      throw new Error('Please provide your previous medical history');
+    }
+
+    // Validate date is not in the past
+    const selectedDate = new Date(booking.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      throw new Error('Cannot book appointments for past dates');
+    }
+  };
+
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
@@ -115,7 +182,32 @@ const BookAppointment = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/appointments', {
+      // Validate all required fields
+      if (!doctor?._id) {
+        throw new Error('Doctor information is missing');
+      }
+
+      if (!user?._id) {
+        throw new Error('Patient information is missing');
+      }
+
+      validateBookingData();
+
+      const appointmentDate = new Date(booking.date);
+      appointmentDate.setUTCHours(0, 0, 0, 0);
+
+      // Create appointment data
+      const appointmentData = {
+        doctor: doctor._id,
+        date: appointmentDate.toISOString(),
+        time: booking.time,
+        reason: booking.reason.trim(),
+        symptoms: booking.symptoms.trim(),
+        previousHistory: booking.previousHistory.trim()
+      };
+
+      // Check if slot is available
+      const availabilityCheck = await fetch('http://localhost:5000/api/appointments/check-availability', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,25 +215,39 @@ const BookAppointment = () => {
         },
         body: JSON.stringify({
           doctorId: doctor._id,
-          date: booking.date,
-          time: booking.time,
-          reason: booking.reason,
-          symptoms: booking.symptoms,
-          previousHistory: booking.previousHistory
+          date: appointmentData.date,
+          time: appointmentData.time
         })
       });
 
+      const availabilityData = await availabilityCheck.json();
+      if (!availabilityData.available) {
+        throw new Error('This time slot is already booked. Please select another time.');
+      }
+
+      // Create appointment
+      const response = await fetch('http://localhost:5000/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(appointmentData)
+      });
+
+      const data = await response.json();
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to book appointment');
+        throw new Error(data.message || 'Failed to book appointment');
       }
 
       setBookingSuccess(true);
       setTimeout(() => {
         navigate('/patient/appointments');
       }, 2000);
+
     } catch (error) {
-      console.error('Error booking appointment:', error);
+      console.error('Booking error:', error);
       alert(error.message || 'Failed to book appointment. Please try again.');
     }
   };
@@ -272,7 +378,6 @@ const BookAppointment = () => {
                   className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
                   value={booking.date}
                   onChange={handleBookingChange}
-                  required
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
@@ -298,20 +403,20 @@ const BookAppointment = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Reason for Visit:</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Reason for Visit: <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="reason"
                   className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
                   value={booking.reason}
                   onChange={handleBookingChange}
-                  required
                   placeholder="e.g., Regular Checkup, Consultation"
+                  required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Symptoms (if any):</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Symptoms: <span className="text-red-500">*</span></label>
                 <textarea
                   name="symptoms"
                   className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
@@ -319,11 +424,12 @@ const BookAppointment = () => {
                   onChange={handleBookingChange}
                   rows="3"
                   placeholder="Please describe your symptoms..."
+                  required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Previous Medical History:</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Previous Medical History: <span className="text-red-500">*</span></label>
                 <textarea
                   name="previousHistory"
                   className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
@@ -331,6 +437,7 @@ const BookAppointment = () => {
                   onChange={handleBookingChange}
                   rows="3"
                   placeholder="Any relevant medical history..."
+                  required
                 />
               </div>
 

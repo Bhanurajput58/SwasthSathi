@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './Admin.css';
+import './ManagePatients.css';
 
 const PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2U1ZTdlYiIvPjx0ZXh0IHg9Ijc1IiB5PSI3NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNmI3MjgwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Tm8gUGhvdG88L3RleHQ+PC9zdmc+';
 
@@ -363,7 +363,7 @@ const ManagePatients = () => {
 
         <div className="users-grid">
           {patients.map((patient) => (
-            <div key={patient._id} className="user-card">
+            <div key={patient._id} className="user-card-patients">
               <div className="user-avatar">
                 <img 
                   src={patient.photo || PLACEHOLDER_IMAGE} 
@@ -374,7 +374,7 @@ const ManagePatients = () => {
                   }}
                 />
               </div>
-              <div className="user-info">
+              <div className="user-info-patients">
                 <h3>{patient.name}</h3>
               </div>
               <div className="user-actions">

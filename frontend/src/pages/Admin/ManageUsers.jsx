@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import EditUserModal from '../../components/EditUserModal';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
-import './Admin.css';
+import './ManageUsers.css';
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -109,25 +109,24 @@ const ManageUsers = () => {
 
       <div className="users-grid">
         {users.map((user) => (
-          <div key={user._id} className="user-card">
-            <div className="user-info">
+          <div key={user._id} className="user-card-users">
+            <div className="user-info-users">
               <h3>{user.name}</h3>
-              <p>Email: {user.email}</p>
-              <p>Role: {user.role}</p>
-              <p>Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
+              <div className="user-detail"><strong>Email:</strong> {user.email}</div>
+              <div className="user-detail"><strong>Role:</strong> {user.role}</div>
+              <div className="user-detail"><strong>Joined:</strong> {new Date(user.createdAt).toLocaleDateString()}</div>
             </div>
             <div className="user-actions">
-              <button 
-                className="action-button"
-                onClick={() => handleEdit(user)}
+              <a
+                className="view-details-button"
+                href={`mailto:${user.email}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                Edit
-              </button>
-              <button 
-                className="action-button gray"
-                onClick={() => handleDeleteClick(user)}
-              >
-                Delete
+                SEND EMAIL
+              </a>
+              <button className="assign-doctor-button" onClick={() => handleDeleteClick(user)}>
+                DELETE
               </button>
             </div>
           </div>

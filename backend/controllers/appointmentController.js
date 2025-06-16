@@ -1,55 +1,117 @@
+const mongoose = require('mongoose');
 const Appointment = require('../models/Appointment');
 const User = require('../models/User');
 
 const createAppointment = async (req, res) => {
   try {
-    const { doctorId, date, time, reason, symptoms, previousHistory } = req.body;
-    const patientId = req.user._id;
+    console.log('Received appointment request:', JSON.stringify(req.body, null, 2));
+    
+    const { doctor, date, time, reason, symptoms, previousHistory } = req.body;
+    const patient = req.user._id;
 
-    // Validate doctor exists and is approved
-    if (doctorId) {
-      const doctor = await User.findOne({ _id: doctorId, role: 'doctor', isApproved: true });
-      if (!doctor) {
-        return res.status(404).json({ message: 'Doctor not found or not approved' });
-      }
+    // Validate required fields
+    if (!doctor) {
+      return res.status(400).json({ message: 'Doctor ID is required' });
     }
 
-    // Check for existing appointment at the same time
+    if (!date) {
+      return res.status(400).json({ message: 'Date is required' });
+    }
+
+    if (!time) {
+      return res.status(400).json({ message: 'Time is required' });
+    }
+
+    if (!reason) {
+      return res.status(400).json({ message: 'Reason for visit is required' });
+    }
+
+    if (!symptoms) {
+      return res.status(400).json({ message: 'Symptoms are required' });
+    }
+
+    if (!previousHistory) {
+      return res.status(400).json({ message: 'Previous medical history is required' });
+    }
+
+    // Validate doctor exists and is approved
+    const doctorExists = await User.findOne({ 
+      _id: doctor, 
+      role: 'doctor', 
+      isApproved: true 
+    });
+    
+    if (!doctorExists) {
+      return res.status(404).json({ message: 'Doctor not found or not approved' });
+    }
+
+    // Format the date properly
+    const formattedDate = new Date(date);
+    formattedDate.setUTCHours(0, 0, 0, 0);
+
+    if (isNaN(formattedDate.getTime())) {
+      return res.status(400).json({ message: 'Invalid date format' });
+    }
+
+    // Validate time format
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9] (AM|PM)$/;
+    if (!timeRegex.test(time)) {
+      return res.status(400).json({ 
+        message: 'Invalid time format. Please use format HH:MM AM/PM'
+      });
+    }
+
+    // Check for existing appointment
     const existingAppointment = await Appointment.findOne({
-      doctor: doctorId,
-      date,
+      doctor,
+      date: formattedDate,
       time,
-      status: { $in: ['pending', 'confirmed'] }
+      status: { $nin: ['cancelled'] }
     });
 
     if (existingAppointment) {
-      return res.status(400).json({ message: 'This time slot is already booked' });
+      return res.status(400).json({ 
+        message: 'This time slot is already booked. Please select another time.' 
+      });
     }
 
     // Create appointment
-    const appointment = await Appointment.create({
-      patient: patientId,
-      doctor: doctorId,
-      date,
-      time,
-      reason,
-      symptoms,
-      previousHistory,
-      status: doctorId ? 'pending' : 'needs_doctor'
+    const appointment = new Appointment({
+      patient,
+      doctor,
+      date: formattedDate,
+      time: time.trim(),
+      reason: reason.trim(),
+      symptoms: symptoms.trim(),
+      previousHistory: previousHistory.trim(),
+      status: 'pending'
     });
 
+    // Validate the appointment
+    const validationError = appointment.validateSync();
+    if (validationError) {
+      return res.status(400).json({ 
+        message: 'Invalid appointment data',
+        errors: Object.values(validationError.errors).map(err => err.message)
+      });
+    }
+
+    // Save the appointment
+    const savedAppointment = await appointment.save();
+
     // Populate doctor and patient details
-    await appointment.populate([
+    await savedAppointment.populate([
       { path: 'patient', select: 'name email photo' },
       { path: 'doctor', select: 'name email specialization photo' }
     ]);
 
-    res.status(201).json(appointment);
+    res.status(201).json(savedAppointment);
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ message: error.message });
-    }
-    res.status(500).json({ message: 'Error creating appointment', error: error.message });
+    console.error('Appointment creation error:', error);
+    res.status(500).json({ 
+      message: 'Error creating appointment',
+      error: error.message
+    });
   }
 };
 
@@ -105,7 +167,6 @@ const updateAppointment = async (req, res) => {
       return res.status(404).json({ message: 'Appointment not found' });
     }
 
-    // Check if user is authorized to update
     if (req.user.role === 'patient' && appointment.patient.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to update this appointment' });
     }
@@ -251,6 +312,38 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+const checkAvailability = async (req, res) => {
+  try {
+    const { doctorId, date, time } = req.body;
+
+    if (!doctorId || !date || !time) {
+      return res.status(400).json({ 
+        message: 'Doctor ID, date, and time are required' 
+      });
+    }
+
+    // Format the date to match the stored format
+    const formattedDate = new Date(date);
+    formattedDate.setUTCHours(0, 0, 0, 0);
+
+    // Check if there's an existing appointment
+    const existingAppointment = await Appointment.findOne({
+      doctor: doctorId,
+      date: formattedDate,
+      time: time,
+      status: { $nin: ['cancelled'] }
+    });
+
+    res.json({ available: !existingAppointment });
+  } catch (error) {
+    console.error('Error checking availability:', error);
+    res.status(500).json({ 
+      message: 'Error checking availability',
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   createAppointment,
   getAppointments,
@@ -260,5 +353,6 @@ module.exports = {
   getPatientAppointments,
   getDoctorAppointments,
   updateAppointmentStatus,
-  cancelAppointment
+  cancelAppointment,
+  checkAvailability
 }; 

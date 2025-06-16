@@ -11,13 +11,15 @@ const {
   getPatientAppointments,
   getDoctorAppointments,
   updateAppointmentStatus,
-  cancelAppointment
+  cancelAppointment,
+  checkAvailability
 } = require('../controllers/appointmentController');
 
 router.use(protect);
 
 // Patient routes
 router.post('/', authorize('patient'), createAppointment);
+router.post('/check-availability', authorize('patient'), checkAvailability);
 router.get('/patient', authorize('patient'), getPatientAppointments);
 router.get('/patient/:id', authorize('patient'), getAppointment);
 router.put('/patient/:id', authorize('patient'), updateAppointment);

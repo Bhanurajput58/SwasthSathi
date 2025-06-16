@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
-import './Admin.css';
+import './ManageDoctors.css';
 
 const ManageDoctors = () => {
   const [doctors, setDoctors] = useState([]);
@@ -114,7 +114,7 @@ const ManageDoctors = () => {
 
       <div className="users-grid">
         {doctors.map((doctor) => (
-          <div key={doctor._id} className="user-card">
+          <div key={doctor._id} className="user-card-doctors">
             <div className="doctor-avatar">
               <img 
                 src={doctor.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.name)}&background=random`} 
@@ -125,7 +125,7 @@ const ManageDoctors = () => {
                 }}
               />
             </div>
-            <div className="user-info">
+            <div className="user-info-doctors">
               <h3>{doctor.name}</h3>
             </div>
             <div className="user-actions">
@@ -148,7 +148,7 @@ const ManageDoctors = () => {
                   className="action-button red"
                   onClick={() => handleApproval(doctor._id, false)}
                 >
-                  Revoke Approval
+                  Suspend
                 </button>
               )}
             </div>
