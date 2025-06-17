@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { FaArrowLeft, FaSearch, FaFilter } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './Admin.css';
+import './ManageAppointments.css';
 
 const ManageAppointments = () => {
   const { user } = useAuth();

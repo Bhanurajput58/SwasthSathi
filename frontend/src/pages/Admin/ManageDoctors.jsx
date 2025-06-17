@@ -125,6 +125,8 @@ const ManageDoctors = () => {
                 }}
               />
             </div>
+
+            
             <div className="user-info-doctors">
               <h3>{doctor.name}</h3>
             </div>
