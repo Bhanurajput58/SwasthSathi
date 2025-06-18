@@ -1141,7 +1141,7 @@
   flex-wrap: wrap;
 }
 
-.quick-action-card {
+.home-quick-action-card {
   background: #fff;
   border-radius: 1rem;
   box-shadow: 0 2px 8px rgba(44,62,80,0.07);
@@ -1157,13 +1157,13 @@
   transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
 }
 
-.quick-action-card:hover {
+.home-quick-action-card:hover {
   box-shadow: 0 8px 24px rgba(44,62,80,0.13);
   transform: translateY(-6px) scale(1.03);
   border-top: 4px solid #0ea5e9;
 }
 
-.quick-action-icon {
+.home-quick-action-icon {
   font-size: 2.5rem;
   margin-bottom: 0.7rem;
   color: #0ea5e9;
@@ -1172,21 +1172,21 @@
   -webkit-text-fill-color: transparent;
 }
 
-.quick-action-title {
+.home-quick-action-title {
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 0.3rem;
   color: #1e293b;
 }
 
-.quick-action-desc {
+.home-quick-action-desc {
   color: #334155;
   font-size: 0.97rem;
   margin-bottom: 1.1rem;
   line-height: 1.5;
 }
 
-.quick-action-btn {
+.home-quick-action-btn {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -1202,12 +1202,12 @@
   box-shadow: 0 2px 6px rgba(14,165,233,0.08);
 }
 
-.quick-action-btn:hover {
+.home-quick-action-btn:hover {
   background: #0ea5e9;
   color: #fff;
 }
 
-.quick-action-img {
+.home-quick-action-img {
   width: 110px;
   height: 110px;
   margin-bottom: 1.2rem;
@@ -1215,7 +1215,7 @@
 }
 
 @media (max-width: 900px) {
-  .quick-action-card {
+  .home-quick-action-card {
     min-height: 0;
     max-width: 90vw;
   }
@@ -1446,7 +1446,7 @@
 }
 
 /* Updated Quick Action Button with smaller arrow */
-.quick-action-btn {
+.home-quick-action-btn {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -1462,13 +1462,13 @@
 }
 
 /* This specifically targets the BsArrowRight icon to make it smaller */
-.quick-action-btn svg {
+.home-quick-action-btn svg {
   width: 16px;
   height: 16px;
   font-size: 16px;
 }
 
-.quick-action-btn:hover {
+.home-quick-action-btn:hover {
   background: #0ea5e9;
   color: #fff;
 }

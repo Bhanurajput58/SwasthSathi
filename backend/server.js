@@ -21,9 +21,24 @@ console.log('Attempting to connect to MongoDB...');
 console.log('MongoDB URI:', process.env.MONGODB_URI ? 'URI is set' : 'URI is not set');
 
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
+  .then(async () => {
     console.log('Successfully connected to MongoDB');
     console.log('MongoDB connection state:', mongoose.connection.readyState);
+    
+    // Verify database and collections
+    const db = mongoose.connection.db;
+    const collections = await db.listCollections().toArray();
+    console.log('Available collections:', collections.map(col => col.name));
+    
+    // Ensure appointments collection exists
+    const appointmentsCollection = collections.find(col => col.name === 'appointments');
+    if (appointmentsCollection) {
+      console.log('✅ Appointments collection found');
+      const appointmentCount = await db.collection('appointments').countDocuments();
+      console.log(`📊 Total appointments in database: ${appointmentCount}`);
+    } else {
+      console.log('⚠️ Appointments collection not found - will be created when first appointment is saved');
+    }
   })
   .catch((err) => {
     console.error('MongoDB connection error:', err);

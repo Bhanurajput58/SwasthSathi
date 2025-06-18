@@ -1,16 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
-import { FaUserMd, FaStar, FaHospital, FaPhone, FaEnvelope, FaGraduationCap, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
+import { useParams, Link, Navigate } from 'react-router-dom';
+import { FaUserMd, FaStar, FaHospital, FaPhone, FaEnvelope, FaGraduationCap, FaCalendarAlt, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import './DoctorProfile.css';
 
 const DoctorProfile = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Authentication and role check
+  useEffect(() => {
+    if (!authLoading && !user) {
+      window.location.href = '/login';
+      return;
+    }
+
+    if (!authLoading && user?.role !== 'patient') {
+      window.location.href = '/';
+      return;
+    }
+  }, [user, authLoading]);
+
+  // If still loading auth, show loading state
+  if (authLoading) {
+    return (
+      <div className="doctor-profile-container">
+        <div className="loading-message">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'patient') {
+    return null;
+  }
 
   useEffect(() => {
     const fetchDoctorDetails = async () => {
@@ -42,25 +67,6 @@ const DoctorProfile = () => {
     fetchDoctorDetails();
   }, [id, user]);
 
-  // Show loading state while auth is loading
-  if (authLoading) {
-    return (
-      <div className="doctor-profile-container">
-        <div className="loading-message">Loading...</div>
-      </div>
-    );
-  }
-
-  // Redirect to login if not authenticated
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Redirect to home if not a patient
-  if (user.role !== 'patient') {
-    return <Navigate to="/" replace />;
-  }
-
   // Show loading state while fetching doctor details
   if (loading) {
     return (
@@ -90,15 +96,6 @@ const DoctorProfile = () => {
 
   return (
     <div className="doctor-profile-container">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate('/patient/all-doctors')}
-        className="group flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md mb-4"
-      >
-        <FaArrowLeft className="transform group-hover:-translate-x-1 transition-transform" />
-        <span>Back to Doctors</span>
-      </button>
-
       <div className="profile-header">
         <div className="doctor-image">
           {doctor.photo ? (
@@ -114,8 +111,12 @@ const DoctorProfile = () => {
           <div className="specialization">{doctor.specialization}</div>
           <div className="rating">
             <FaStar className="star-icon" />
-            <span>{doctor.avgRating || '4.8'}</span>
+            <span>{doctor.avgRating || '0'}</span>
             <span className="total-ratings">({doctor.totalRating || '0'} reviews)</span>
+          </div>
+          <div className={`availability-status ${doctor.isApproved ? 'available' : ''}`}>
+            <FaClock />
+            <span>{doctor.isApproved ? 'Available' : 'Not Available - Pending Approval'}</span>
           </div>
         </div>
       </div>
@@ -178,25 +179,6 @@ const DoctorProfile = () => {
                 <p>{doctor.experience || '0'} years</p>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="profile-section">
-          <h2>Availability</h2>
-          <div className="availability-list">
-            {doctor.availability ? (
-              doctor.availability.map((slot, index) => (
-                <div key={index} className="availability-item">
-                  <FaClock />
-                  <div>
-                    <h3>{slot.day}</h3>
-                    <p>{slot.timing}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>No availability information available.</p>
-            )}
           </div>
         </div>
       </div>

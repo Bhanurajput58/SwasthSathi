@@ -137,7 +137,7 @@ const PatientDashboard = () => {
 
         {/* Quick actions */}
         <div className="quick-actions-grid">
-          <div className="quick-action-card">
+          <div className="patient-quick-action-card">
             <div className="quick-action-content">
               <div className="quick-action-icon-container blue">
                 <Calendar className="quick-action-icon blue" />
@@ -150,7 +150,7 @@ const PatientDashboard = () => {
             </Link>
           </div>
 
-          <div className="quick-action-card">
+          <div className="patient-quick-action-card">
             <div className="quick-action-content">
               <div className="quick-action-icon-container purple">
                 <FileText className="quick-action-icon purple" />
@@ -163,7 +163,7 @@ const PatientDashboard = () => {
             </Link>
           </div>
 
-          <div className="quick-action-card">
+          <div className="patient-quick-action-card">
             <div className="quick-action-content">
               <div className="quick-action-icon-container red">
                 <Phone className="quick-action-icon red" />
@@ -171,7 +171,7 @@ const PatientDashboard = () => {
               <h2 className="quick-action-title">Emergency</h2>
             </div>
             <p className="quick-action-description">24/7 emergency medical assistance</p>
-            <Link to="/contact" className="action-button red">
+            <Link to="/patient/contact" className="action-button red">
               Contact Emergency
             </Link>
           </div>
@@ -201,7 +201,7 @@ const PatientDashboard = () => {
                           <User className="doctor-icon" />
                         </div>
                         <div>
-                          <p className="doctor-name">Dr. {appointment.doctor?.name}</p>
+                          <p className="doctor-name">{appointment.doctor?.name}</p>
                           <p className="doctor-specialization">{appointment.doctor?.specialization}</p>
                         </div>
                       </div>

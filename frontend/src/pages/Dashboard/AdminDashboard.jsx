@@ -210,7 +210,7 @@ const AdminDashboard = () => {
                   <div className="appointment-content">
                     <div className="appointment-details">
                       <p className="appointment-patient-name">Patient: {appointment.patient?.name}</p>
-                      <p className="appointment-time-purpose">Doctor: Dr. {appointment.doctor?.name}</p>
+                      <p className="appointment-time-purpose">Doctor: {appointment.doctor?.name}</p>
                       <p className="appointment-time-purpose">Date: {new Date(appointment.date).toLocaleDateString()}</p>
                       <p className="appointment-time-purpose">Status: {appointment.status}</p>
                     </div>

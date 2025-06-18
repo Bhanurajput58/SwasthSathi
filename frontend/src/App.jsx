@@ -9,7 +9,6 @@ import Contact from './pages/Contact';
 import Doctors from './pages/Doctors/Doctors';
 import AllDoctors from './pages/Doctors/AllDoctors';
 import DoctorProfile from './pages/Doctors/DoctorProfile';
-import BookAppointment from './pages/Doctors/BookAppointment';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -49,6 +48,7 @@ function App() {
                 <Route path="all-doctors" element={<AllDoctors />} />
                 <Route path="doctors/:id" element={<DoctorProfile />} />
                 <Route path="profile" element={<PatientProfile />} />
+                <Route path="contact" element={<Contact />} />
               </Routes>
             </ProtectedRoute>
           }
@@ -88,8 +88,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        <Route path="/book-appointment/:id" element={<BookAppointment />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

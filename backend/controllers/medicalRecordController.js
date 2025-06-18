@@ -192,6 +192,36 @@ const getPendingMedicalRecordsCount = async (req, res) => {
   }
 };
 
+// Get patient medical records for doctor
+const getPatientMedicalRecordsForDoctor = async (req, res) => {
+  try {
+    console.log('Doctor fetching medical records for patient:', req.params.patientId);
+    
+    // Check if the doctor has any appointments with this patient
+    const Appointment = require('../models/Appointment');
+    const appointment = await Appointment.findOne({
+      doctor: req.user._id,
+      patient: req.params.patientId
+    });
+
+    if (!appointment) {
+      console.log('Doctor not authorized to access this patient\'s records');
+      return res.status(403).json({ message: 'Not authorized to access this patient\'s records' });
+    }
+
+    // Get medical records for this patient
+    const records = await MedicalRecord.find({ patient: req.params.patientId })
+      .populate('doctor', 'name email')
+      .sort({ createdAt: -1 });
+
+    console.log(`Found ${records.length} medical records for patient`);
+    res.json(records);
+  } catch (error) {
+    console.error('Error fetching patient medical records for doctor:', error);
+    res.status(500).json({ message: 'Error fetching patient medical records', error: error.message });
+  }
+};
+
 module.exports = {
   createMedicalRecord,
   getMedicalRecords,
@@ -200,6 +230,7 @@ module.exports = {
   deleteMedicalRecord,
   getPatientMedicalRecords,
   getDoctorMedicalRecords,
+  getPatientMedicalRecordsForDoctor,
   addMedicalRecordAttachment,
   removeMedicalRecordAttachment,
   updateFollowUpDate,

@@ -10,6 +10,7 @@ const {
   deleteMedicalRecord,
   getPatientMedicalRecords,
   getDoctorMedicalRecords,
+  getPatientMedicalRecordsForDoctor,
   addMedicalRecordAttachment,
   removeMedicalRecordAttachment,
   updateFollowUpDate,
@@ -25,6 +26,7 @@ router.get('/patient/:id', authorize('patient'), getMedicalRecord);
 // Doctor routes
 router.post('/', authorize('doctor'), createMedicalRecord);
 router.get('/doctor', authorize('doctor'), getDoctorMedicalRecords);
+router.get('/doctor/patient/:patientId', authorize('doctor'), getPatientMedicalRecordsForDoctor);
 router.get('/doctor/:id', authorize('doctor'), getMedicalRecord);
 router.get('/doctor/:id/pending-reports', authorize('doctor'), getPendingMedicalRecordsCount);
 router.put('/doctor/:id', authorize('doctor'), updateMedicalRecord);

@@ -31,18 +31,68 @@ const getPatientProfile = async (req, res) => {
 // Get patients associated with a doctor
 const getPatientsByDoctor = async (req, res) => {
   try {
-    // Find all appointments for this doctor
+    console.log('Fetching patients for doctor:', req.params.doctorId);
+    
+    // Find all appointments for this doctor and populate patient data
     const appointments = await Appointment.find({ doctor: req.params.doctorId })
       .populate('patient', 'name email phone photo')
-      .distinct('patient');
+      .sort({ createdAt: -1 });
 
-    // Get unique patients
-    const patients = [...new Set(appointments.map(app => app.patient))];
+    // Get unique patients with their data
+    const patientMap = new Map();
+    appointments.forEach(appointment => {
+      if (appointment.patient && !patientMap.has(appointment.patient._id.toString())) {
+        patientMap.set(appointment.patient._id.toString(), {
+          _id: appointment.patient._id,
+          name: appointment.patient.name,
+          email: appointment.patient.email,
+          phone: appointment.patient.phone,
+          photo: appointment.patient.photo,
+          lastVisit: appointment.createdAt // Use appointment creation date as last visit
+        });
+      }
+    });
+
+    const patients = Array.from(patientMap.values());
+    console.log(`Found ${patients.length} unique patients for doctor`);
 
     res.json(patients);
   } catch (error) {
     console.error('Error fetching patients:', error);
     res.status(500).json({ message: 'Error fetching patients', error: error.message });
+  }
+};
+
+// Get patient details for doctor
+const getPatientDetailsForDoctor = async (req, res) => {
+  try {
+    console.log('Doctor fetching patient details for patient:', req.params.id);
+    
+    const patient = await User.findById(req.params.id)
+      .select('-password')
+      .lean();
+
+    if (!patient) {
+      console.log('Patient not found');
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+
+    // Check if the doctor has any appointments with this patient
+    const appointment = await Appointment.findOne({
+      doctor: req.user._id,
+      patient: req.params.id
+    });
+
+    if (!appointment) {
+      console.log('Doctor not authorized to access this patient');
+      return res.status(403).json({ message: 'Not authorized to access this patient' });
+    }
+
+    console.log('Patient details fetched successfully for doctor');
+    res.json(patient);
+  } catch (error) {
+    console.error('Error fetching patient details for doctor:', error);
+    res.status(500).json({ message: 'Error fetching patient details', error: error.message });
   }
 };
 
@@ -188,5 +238,6 @@ const updatePatientProfile = async (req, res) => {
 module.exports = {
   getPatientProfile,
   getPatientsByDoctor,
+  getPatientDetailsForDoctor,
   updatePatientProfile
 }; 

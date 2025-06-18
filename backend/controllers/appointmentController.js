@@ -4,34 +4,44 @@ const User = require('../models/User');
 
 const createAppointment = async (req, res) => {
   try {
-    console.log('Received appointment request:', JSON.stringify(req.body, null, 2));
+    // Test database connection
+    console.log('=== DATABASE CONNECTION TEST ===');
+    console.log('MongoDB connection state:', mongoose.connection.readyState);
+    console.log('Database name:', mongoose.connection.db.databaseName);
     
     const { doctor, date, time, reason, symptoms, previousHistory } = req.body;
     const patient = req.user._id;
 
+    console.log('=== APPOINTMENT CREATION START ===');
+    console.log('Received appointment data:', {
+      doctor,
+      date,
+      time,
+      reason: reason?.length,
+      symptoms: symptoms?.length,
+      previousHistory: previousHistory?.length
+    });
+    console.log('Patient ID:', patient);
+    console.log('User role:', req.user.role);
+
     // Validate required fields
-    if (!doctor) {
-      return res.status(400).json({ message: 'Doctor ID is required' });
-    }
+    const requiredFields = {
+      doctor: 'Doctor ID',
+      date: 'Date',
+      time: 'Time',
+      reason: 'Reason for visit',
+      symptoms: 'Symptoms',
+      previousHistory: 'Previous medical history'
+    };
 
-    if (!date) {
-      return res.status(400).json({ message: 'Date is required' });
-    }
-
-    if (!time) {
-      return res.status(400).json({ message: 'Time is required' });
-    }
-
-    if (!reason) {
-      return res.status(400).json({ message: 'Reason for visit is required' });
-    }
-
-    if (!symptoms) {
-      return res.status(400).json({ message: 'Symptoms are required' });
-    }
-
-    if (!previousHistory) {
-      return res.status(400).json({ message: 'Previous medical history is required' });
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!req.body[field]) {
+        console.log(`Missing required field: ${field}`);
+        return res.status(400).json({ 
+          success: false,
+          message: `${label} is required` 
+        });
+      }
     }
 
     // Validate doctor exists and is approved
@@ -42,62 +52,114 @@ const createAppointment = async (req, res) => {
     });
     
     if (!doctorExists) {
-      return res.status(404).json({ message: 'Doctor not found or not approved' });
+      console.log('Doctor not found or not approved:', doctor);
+      return res.status(404).json({ 
+        success: false,
+        message: 'Doctor not found or not approved' 
+      });
     }
+
+    console.log('Doctor found:', doctorExists.name);
 
     // Format the date properly
     const formattedDate = new Date(date);
     formattedDate.setUTCHours(0, 0, 0, 0);
 
+    console.log('Original date:', date);
+    console.log('Formatted date:', formattedDate);
+
     if (isNaN(formattedDate.getTime())) {
-      return res.status(400).json({ message: 'Invalid date format' });
+      console.log('Invalid date format');
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid date format' 
+      });
+    }
+
+    // Ensure the date is not in the past (accounting for timezone)
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    
+    if (formattedDate < today) {
+      console.log('Date is in the past');
+      return res.status(400).json({ 
+        success: false,
+        message: 'Cannot book appointments for past dates' 
+      });
     }
 
     // Validate time format
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9] (AM|PM)$/;
     if (!timeRegex.test(time)) {
+      console.log('Invalid time format:', time);
       return res.status(400).json({ 
+        success: false,
         message: 'Invalid time format. Please use format HH:MM AM/PM'
       });
     }
 
     // Check for existing appointment
     const existingAppointment = await Appointment.findOne({
-      doctor,
+      doctor: doctor,
       date: formattedDate,
       time,
       status: { $nin: ['cancelled'] }
     });
 
     if (existingAppointment) {
+      console.log('Time slot already booked');
       return res.status(400).json({ 
+        success: false,
         message: 'This time slot is already booked. Please select another time.' 
       });
     }
 
-    // Create appointment
-    const appointment = new Appointment({
-      patient,
-      doctor,
+    // Create appointment with proper data validation
+    const appointmentData = {
+      patient: patient,
+      doctor: new mongoose.Types.ObjectId(doctor),
       date: formattedDate,
       time: time.trim(),
       reason: reason.trim(),
       symptoms: symptoms.trim(),
       previousHistory: previousHistory.trim(),
       status: 'pending'
-    });
+    };
 
+    console.log('Appointment data to save:', appointmentData);
+
+    // Validate the data before creating
+    const appointment = new Appointment(appointmentData);
+    
     // Validate the appointment
     const validationError = appointment.validateSync();
     if (validationError) {
+      console.log('Validation errors:', validationError);
+      const errors = Object.values(validationError.errors).map(err => err.message);
       return res.status(400).json({ 
-        message: 'Invalid appointment data',
-        errors: Object.values(validationError.errors).map(err => err.message)
+        success: false,
+        message: 'Validation error',
+        errors 
       });
     }
 
     // Save the appointment
-    const savedAppointment = await appointment.save();
+    console.log('Saving appointment to database...');
+    console.log('Appointment object before save:', appointment);
+    console.log('Appointment data types:', {
+      patient: typeof appointment.patient,
+      doctor: typeof appointment.doctor,
+      date: typeof appointment.date,
+      time: typeof appointment.time,
+      reason: typeof appointment.reason,
+      symptoms: typeof appointment.symptoms,
+      previousHistory: typeof appointment.previousHistory,
+      status: typeof appointment.status
+    });
+    
+    // Try using create method instead of save
+    const savedAppointment = await Appointment.create(appointmentData);
+    console.log('Appointment saved successfully with ID:', savedAppointment._id);
 
     // Populate doctor and patient details
     await savedAppointment.populate([
@@ -105,12 +167,54 @@ const createAppointment = async (req, res) => {
       { path: 'doctor', select: 'name email specialization photo' }
     ]);
 
-    res.status(201).json(savedAppointment);
+    console.log('=== APPOINTMENT CREATION SUCCESS ===');
+
+    res.status(201).json({
+      success: true,
+      message: 'Appointment booked successfully',
+      data: savedAppointment
+    });
   } catch (error) {
+    console.error('=== APPOINTMENT CREATION ERROR ===');
     console.error('Appointment creation error:', error);
+    
+    // Handle mongoose validation errors
+    if (error instanceof mongoose.Error.ValidationError) {
+      const errors = Object.values(error.errors).map(err => err.message);
+      console.log('Validation errors:', errors);
+      return res.status(400).json({ 
+        success: false,
+        message: 'Validation error',
+        errors 
+      });
+    }
+
+    // Handle MongoDB validation errors with detailed logging
+    if (error.name === 'MongoServerError' && error.code === 121) {
+      console.log('MongoDB validation error details:', error.errInfo);
+      console.log('Failing document ID:', error.errInfo?.failingDocumentId);
+      console.log('Schema rules not satisfied:', error.errInfo?.details?.schemaRulesNotSatisfied);
+      
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid appointment data. Please check all required fields.',
+        details: error.errInfo?.details?.schemaRulesNotSatisfied || 'Validation failed'
+      });
+    }
+
+    // Handle duplicate key error
+    if (error.code === 11000) {
+      console.log('Duplicate key error');
+      return res.status(400).json({ 
+        success: false,
+        message: 'This time slot is already booked' 
+      });
+    }
+
     res.status(500).json({ 
+      success: false,
       message: 'Error creating appointment',
-      error: error.message
+      error: error.message 
     });
   }
 };
@@ -318,6 +422,7 @@ const checkAvailability = async (req, res) => {
 
     if (!doctorId || !date || !time) {
       return res.status(400).json({ 
+        success: false,
         message: 'Doctor ID, date, and time are required' 
       });
     }
@@ -325,6 +430,22 @@ const checkAvailability = async (req, res) => {
     // Format the date to match the stored format
     const formattedDate = new Date(date);
     formattedDate.setUTCHours(0, 0, 0, 0);
+
+    if (isNaN(formattedDate.getTime())) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid date format' 
+      });
+    }
+
+    // Validate time format
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9] (AM|PM)$/;
+    if (!timeRegex.test(time)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid time format. Please use format HH:MM AM/PM'
+      });
+    }
 
     // Check if there's an existing appointment
     const existingAppointment = await Appointment.findOne({
@@ -334,12 +455,58 @@ const checkAvailability = async (req, res) => {
       status: { $nin: ['cancelled'] }
     });
 
-    res.json({ available: !existingAppointment });
+    res.json({ 
+      success: true,
+      available: !existingAppointment 
+    });
   } catch (error) {
     console.error('Error checking availability:', error);
     res.status(500).json({ 
+      success: false,
       message: 'Error checking availability',
       error: error.message 
+    });
+  }
+};
+
+// Test endpoint to verify database connection and appointment saving
+const testAppointmentSave = async (req, res) => {
+  try {
+    console.log('=== TESTING APPOINTMENT SAVE ===');
+    
+    // Create a test appointment
+    const testAppointment = new Appointment({
+      patient: req.user._id,
+      doctor: req.user._id, // Using same user as doctor for test
+      date: new Date(),
+      time: '10:00 AM',
+      reason: 'Test appointment',
+      symptoms: 'Test symptoms',
+      previousHistory: 'Test history',
+      status: 'pending'
+    });
+
+    console.log('Test appointment data:', testAppointment);
+
+    // Save the test appointment
+    const savedTestAppointment = await testAppointment.save();
+    console.log('Test appointment saved with ID:', savedTestAppointment._id);
+
+    // Delete the test appointment
+    await Appointment.findByIdAndDelete(savedTestAppointment._id);
+    console.log('Test appointment deleted');
+
+    res.json({
+      success: true,
+      message: 'Appointment save test successful',
+      testId: savedTestAppointment._id
+    });
+  } catch (error) {
+    console.error('Test appointment save error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Test appointment save failed',
+      error: error.message
     });
   }
 };
@@ -354,5 +521,6 @@ module.exports = {
   getDoctorAppointments,
   updateAppointmentStatus,
   cancelAppointment,
-  checkAvailability
+  checkAvailability,
+  testAppointmentSave
 }; 

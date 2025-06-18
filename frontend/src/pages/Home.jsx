@@ -166,7 +166,7 @@ const Home = () => {
       {/* Quick Actions Section */}
       <section className="quick-actions-section">
         <div className="container quick-actions-grid">
-          <div className="quick-action-card">
+          <div className="home-quick-action-card">
             <img src={icon02} alt="Find a Location" className="quick-action-img" />
             <h3 className="quick-action-title">Find a Location</h3>
             <p className="quick-action-desc">
@@ -176,7 +176,7 @@ const Home = () => {
               <BsArrowRight />
             </Link>
           </div>
-          <div className="quick-action-card">
+          <div className="home-quick-action-card">
             <img src={icon03} alt="Book Appointment" className="quick-action-img" />
             <h3 className="quick-action-title">Book Appointment</h3>
             <p className="quick-action-desc">
@@ -186,7 +186,7 @@ const Home = () => {
               <BsArrowRight />
             </Link>
           </div>
-          <div className="quick-action-card">
+          <div className="home-quick-action-card">
             <img src={dieting} alt="Get Health Tips" className="quick-action-img" />
             <h3 className="quick-action-title">Get Health Tips</h3>
             <p className="quick-action-desc">

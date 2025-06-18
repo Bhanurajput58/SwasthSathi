@@ -13,6 +13,10 @@ const DoctorDashboard = () => {
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showPatientRecordsModal, setShowPatientRecordsModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patientMedicalRecords, setPatientMedicalRecords] = useState([]);
+  const [showAllPatientsModal, setShowAllPatientsModal] = useState(false);
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
@@ -246,7 +250,7 @@ const DoctorDashboard = () => {
 
         // Fetch pending reports
         try {
-          const pendingReportsResponse = await fetch(`http://localhost:5000/api/medicalrecords/doctor/${user?._id}/pending-reports`, {
+          const pendingReportsResponse = await fetch(`http://localhost:5000/api/medical-records/doctor/${user?._id}/pending-reports`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -289,6 +293,48 @@ const DoctorDashboard = () => {
   const handleOpenEditModal = () => {
     fetchDoctorProfile(); 
     setShowEditModal(true);
+  };
+
+  const handleViewPatientRecords = async (patient) => {
+    try {
+      const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
+      
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      // Fetch complete patient profile details using the doctor-specific endpoint
+      const patientResponse = await fetch(`http://localhost:5000/api/patients/doctor/patient/${patient._id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!patientResponse.ok) {
+        throw new Error('Failed to fetch patient details');
+      }
+
+      const patientDetails = await patientResponse.json();
+
+      // Fetch patient's medical records using the doctor-specific endpoint
+      const recordsResponse = await fetch(`http://localhost:5000/api/medical-records/doctor/patient/${patient._id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!recordsResponse.ok) {
+        throw new Error('Failed to fetch patient records');
+      }
+
+      const records = await recordsResponse.json();
+      setPatientMedicalRecords(records);
+      setSelectedPatient(patientDetails);
+      setShowPatientRecordsModal(true);
+    } catch (error) {
+      console.error('Error fetching patient data:', error);
+      alert(`Failed to fetch patient data: ${error.message}`);
+    }
   };
 
   const handleLogout = () => {
@@ -499,6 +545,265 @@ const DoctorDashboard = () => {
               </div>
             )}
 
+            {/* Patient Records Modal */}
+            {showPatientRecordsModal && selectedPatient && (
+              <div className="modal-overlay">
+                <div className="modal-content patient-records-modal">
+                  <div className="modal-header">
+                    <h2>Patient Records - {selectedPatient.name}</h2>
+                    <button 
+                      className="close-modal-btn"
+                      onClick={() => {
+                        setShowPatientRecordsModal(false);
+                        setSelectedPatient(null);
+                        setPatientMedicalRecords([]);
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  
+                  <div className="patient-info-section">
+                    <div className="patient-basic-info">
+                      <div className="info-row">
+                        <span className="info-label">Name:</span>
+                        <span className="info-value">{selectedPatient.name}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Email:</span>
+                        <span className="info-value">{selectedPatient.email || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Phone:</span>
+                        <span className="info-value">{selectedPatient.phone || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Date of Birth:</span>
+                        <span className="info-value">
+                          {selectedPatient.dateOfBirth 
+                            ? new Date(selectedPatient.dateOfBirth).toLocaleDateString()
+                            : 'Not available'
+                          }
+                        </span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Age:</span>
+                        <span className="info-value">
+                          {selectedPatient.dateOfBirth 
+                            ? `${new Date().getFullYear() - new Date(selectedPatient.dateOfBirth).getFullYear()} years`
+                            : 'Not available'
+                          }
+                        </span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Gender:</span>
+                        <span className="info-value">{selectedPatient.gender || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Blood Group:</span>
+                        <span className="info-value">{selectedPatient.bloodGroup || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Address:</span>
+                        <span className="info-value">{selectedPatient.address || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">City:</span>
+                        <span className="info-value">{selectedPatient.city || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">State:</span>
+                        <span className="info-value">{selectedPatient.state || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Pincode:</span>
+                        <span className="info-value">{selectedPatient.pincode || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Emergency Contact:</span>
+                        <span className="info-value">{selectedPatient.emergencyContact || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Emergency Phone:</span>
+                        <span className="info-value">{selectedPatient.emergencyPhone || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Insurance Provider:</span>
+                        <span className="info-value">{selectedPatient.insuranceProvider || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Insurance Number:</span>
+                        <span className="info-value">{selectedPatient.insuranceNumber || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Allergies:</span>
+                        <span className="info-value">{selectedPatient.allergies || 'None known'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Medical History:</span>
+                        <span className="info-value">{selectedPatient.medicalHistory || 'No significant history'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Current Medications:</span>
+                        <span className="info-value">{selectedPatient.currentMedications || 'None'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Occupation:</span>
+                        <span className="info-value">{selectedPatient.occupation || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Marital Status:</span>
+                        <span className="info-value">{selectedPatient.maritalStatus || 'Not available'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Last Visit:</span>
+                        <span className="info-value">
+                          {selectedPatient.lastVisit 
+                            ? new Date(selectedPatient.lastVisit).toLocaleDateString()
+                            : 'No visits yet'
+                          }
+                        </span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Registration Date:</span>
+                        <span className="info-value">
+                          {selectedPatient.createdAt 
+                            ? new Date(selectedPatient.createdAt).toLocaleDateString()
+                            : 'Not available'
+                          }
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="medical-records-section">
+                    <h3>Medical Records</h3>
+                    {patientMedicalRecords.length > 0 ? (
+                      <div className="records-list">
+                        {patientMedicalRecords.map((record) => (
+                          <div key={record._id} className="record-item">
+                            <div className="record-header">
+                              <span className="record-date">
+                                {new Date(record.createdAt).toLocaleDateString()}
+                              </span>
+                              <span className={`status-badge ${record.status || 'pending'}`}>
+                                {(record.status || 'pending').charAt(0).toUpperCase() + (record.status || 'pending').slice(1)}
+                              </span>
+                            </div>
+                            <div className="record-content">
+                              <p><strong>Diagnosis:</strong> {record.diagnosis || 'No diagnosis available'}</p>
+                              <p><strong>Symptoms:</strong> {record.symptoms || 'No symptoms recorded'}</p>
+                              <p><strong>Treatment:</strong> {record.treatment || 'No treatment recorded'}</p>
+                              <p><strong>Prescription:</strong> {record.prescription || 'No prescription'}</p>
+                              <p><strong>Notes:</strong> {record.notes || 'No additional notes'}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-records-text">No medical records found for this patient.</p>
+                    )}
+                  </div>
+
+                  <div className="modal-actions">
+                    <button 
+                      type="button" 
+                      className="cancel-btn" 
+                      onClick={() => {
+                        setShowPatientRecordsModal(false);
+                        setSelectedPatient(null);
+                        setPatientMedicalRecords([]);
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* All Patients Modal */}
+            {showAllPatientsModal && (
+              <div className="modal-overlay">
+                <div className="modal-content all-patients-modal">
+                  <div className="modal-header">
+                    <h2>All Patients ({patients.length})</h2>
+                    <button 
+                      className="close-modal-btn"
+                      onClick={() => setShowAllPatientsModal(false)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  
+                  <div className="patients-grid">
+                    {patients.length > 0 ? (
+                      patients.map((patient) => (
+                        <div key={patient._id} className="patient-card">
+                          <div className="patient-card-header">
+                            <div className="patient-avatar">
+                              {patient.photo ? (
+                                <img 
+                                  src={patient.photo} 
+                                  alt={patient.name}
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.style.display = 'none';
+                                    e.target.parentElement.textContent = patient.name.charAt(0);
+                                  }}
+                                />
+                              ) : (
+                                patient.name.charAt(0)
+                              )}
+                            </div>
+                            <div className="patient-info">
+                              <h3 className="patient-name">{patient.name}</h3>
+                              <p className="patient-email">{patient.email || 'No email'}</p>
+                              <p className="patient-phone">{patient.phone || 'No phone'}</p>
+                            </div>
+                          </div>
+                          <div className="patient-card-actions">
+                            <button 
+                              className="view-records-btn"
+                              onClick={() => {
+                                setShowAllPatientsModal(false);
+                                handleViewPatientRecords(patient);
+                              }}
+                            >
+                              View Records
+                            </button>
+                            <button 
+                              className="book-appointment-btn"
+                              onClick={() => {
+                                setShowAllPatientsModal(false);
+                                navigate('/appointments');
+                              }}
+                            >
+                              Book Appointment
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="no-patients-message">
+                        <p>No patients found. Patients will appear here once they book appointments with you.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="modal-actions">
+                    <button 
+                      type="button" 
+                      className="cancel-btn" 
+                      onClick={() => setShowAllPatientsModal(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Quick Stats*/}
             <div className="quick-stats-grid">
               <div className="quick-stat-card">
@@ -515,6 +820,27 @@ const DoctorDashboard = () => {
               </div>
             </div>
 
+            {/* Quick Actions Section */}
+            <div className="quick-actions-section">
+              <div className="doctor-quick-action-card">
+                <h2 className="doctor-quick-action-card h2">Quick Actions</h2>
+                <div className="quick-actions">
+                  <button 
+                    className="quick-action-btn"
+                    onClick={() => setShowAllPatientsModal(true)}
+                  >
+                    View All Patients ({patients.length})
+                  </button>
+                  <button 
+                    className="quick-action-btn"
+                    onClick={() => navigate('/appointments')}
+                  >
+                    Manage Appointments
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Today's Schedule */}
             <div className="today-schedule-section">
               <h2 className="today-schedule-section h2">Today's Schedule</h2>
@@ -524,7 +850,7 @@ const DoctorDashboard = () => {
                     <div key={appointment._id} className="appointment-item">
                       <div className="appointment-content">
                         <div className="appointment-details">
-                          <p className="appointment-patient-name">{appointment.patient?.name}</p>
+                          <p className="appointment-patient-name">{appointment.patient?.name || 'Unknown Patient'}</p>
                           <p className="appointment-time-purpose">Time: {appointment.time}</p>
                           <p className="appointment-time-purpose">Purpose: {appointment.purpose}</p>
                         </div>
@@ -552,9 +878,9 @@ const DoctorDashboard = () => {
                 <div className="patient-list">
                   {patients.slice(0, 5).map((patient) => (
                     <div key={patient._id} className="patient-item">
-                      <p className="patient-name">{patient.name}</p>
-                      <p className="patient-last-visit">Last Visit: {new Date(patient.lastVisit).toLocaleDateString()}</p>
-                      <button className="view-records-button">
+                      <p className="patient-name">{patient.name || 'Unknown Patient'}</p>
+                      <p className="patient-last-visit">Last Visit: {patient.lastVisit ? new Date(patient.lastVisit).toLocaleDateString() : 'No visits yet'}</p>
+                      <button className="view-records-button" onClick={() => handleViewPatientRecords(patient)}>
                         View Records
                       </button>
                     </div>
@@ -573,20 +899,20 @@ const DoctorDashboard = () => {
                   {medicalRecords.map((record) => (
                     <div key={record._id} className="medical-record-item">
                       <div className="medical-record-header">
-                        <h3>{record.patient?.name}</h3>
-                        <span className={`status-badge ${record.status}`}>
-                          {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                        <h3>{record.patient?.name || 'Unknown Patient'}</h3>
+                        <span className={`status-badge ${record.status || 'pending'}`}>
+                          {(record.status || 'pending').charAt(0).toUpperCase() + (record.status || 'pending').slice(1)}
                         </span>
                       </div>
                       <div className="medical-record-content">
-                        <p className="diagnosis"><strong>Diagnosis:</strong> {record.diagnosis}</p>
-                        <p className="date">Date: {new Date(record.createdAt).toLocaleDateString()}</p>
+                        <p className="diagnosis"><strong>Diagnosis:</strong> {record.diagnosis || 'No diagnosis available'}</p>
+                        <p className="date">Date: {record.createdAt ? new Date(record.createdAt).toLocaleDateString() : 'Date not available'}</p>
                       </div>
                       <div className="medical-record-actions">
                         <button className="view-details-button">
                           View Details
                         </button>
-                        {record.status === 'pending' && (
+                        {(record.status || 'pending') === 'pending' && (
                           <button className="complete-button">
                             Mark as Complete
                           </button>

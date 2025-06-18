@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { FaSearch, FaUserMd, FaStar, FaHospital, FaPhone, FaEnvelope } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import BookingPopup from '../../components/BookingPopup';
 import './AllDoctors.css';
 
 const AllDoctors = () => {
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('All');
+  const [bookingPopup, setBookingPopup] = useState({ isOpen: false, doctor: null });
 
   const specializations = [
     "All",
@@ -21,6 +24,33 @@ const AllDoctors = () => {
     "Orthopedist",
     "Gynecologist"
   ];
+
+  // Authentication and role check
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+      return;
+    }
+
+    if (!authLoading && user?.role !== 'patient') {
+      navigate('/');
+      return;
+    }
+  }, [user, authLoading, navigate]);
+
+  // If still loading auth, show loading state
+  if (authLoading) {
+    return (
+      <div className="all-doctors-container">
+        <div className="loading-message">Loading...</div>
+      </div>
+    );
+  }
+
+  // If no user or not a patient, don't render the page
+  if (!user || user.role !== 'patient') {
+    return null;
+  }
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -51,25 +81,6 @@ const AllDoctors = () => {
     fetchDoctors();
   }, [user]);
 
-  // Show loading state while auth is loading
-  if (authLoading) {
-    return (
-      <div className="all-doctors-container">
-        <div className="loading-message">Loading...</div>
-      </div>
-    );
-  }
-
-  // Redirect to login if not authenticated
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Redirect to home if not a patient
-  if (user.role !== 'patient') {
-    return <Navigate to="/" replace />;
-  }
-
   if (loading) {
     return (
       <div className="all-doctors-container">
@@ -93,6 +104,14 @@ const AllDoctors = () => {
       doctor.specialization === selectedSpecialization;
     return matchesSearch && matchesSpecialization;
   });
+
+  const handleBookAppointment = (doctor) => {
+    setBookingPopup({ isOpen: true, doctor });
+  };
+
+  const closeBookingPopup = () => {
+    setBookingPopup({ isOpen: false, doctor: null });
+  };
 
   return (
     <div className="all-doctors-container">
@@ -170,9 +189,12 @@ const AllDoctors = () => {
                 <Link to={`/patient/doctors/${doctor._id}`} className="view-profile-btn">
                   View Profile
                 </Link>
-                <Link to={`/book-appointment/${doctor._id}`} className="book-appointment-btn">
+                <button 
+                  className="book-appointment-btn"
+                  onClick={() => handleBookAppointment(doctor)}
+                >
                   Book Appointment
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -185,6 +207,13 @@ const AllDoctors = () => {
           </div>
         )}
       </div>
+
+      {/* Booking Popup */}
+      <BookingPopup
+        isOpen={bookingPopup.isOpen}
+        onClose={closeBookingPopup}
+        doctor={bookingPopup.doctor}
+      />
     </div>
   );
 };
