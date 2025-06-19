@@ -14,6 +14,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PatientDashboard from './pages/Dashboard/PatientDashboard';
 import DoctorDashboard from './pages/Dashboard/DoctorDashboard';
+import DoctorPatients from './pages/Dashboard/DoctorPatients';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import Medications from './pages/Medications';
 import ManageUsers from './pages/Admin/ManageUsers';
@@ -58,7 +59,11 @@ function App() {
           path="/doctor/*"
           element={
             <ProtectedRoute allowedRoles={['doctor']}>
-              <DoctorDashboard />
+              <Routes>
+                <Route index element={<DoctorDashboard />} />
+                <Route path="patients" element={<DoctorPatients />} />
+                <Route path="patient/:id" element={<DoctorProfile />} />
+              </Routes>
             </ProtectedRoute>
           }
         />
